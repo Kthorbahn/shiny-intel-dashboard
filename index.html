@@ -415,7 +415,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('submitModalOverlay')">Cancel</button>
-      <button class="btn-primary" onclick="submitArticle()">Add to Dashboard</button>
+      <button class="btn-primary" onclick="submitArticle()">Submit via Email &rarr;</button>
     </div>
   </div>
 </div>
@@ -888,12 +888,23 @@ function submitArticle() {
     alert('Please fill in URL, Title, Summary, Publication date, and Source name.');
     return;
   }
-  var subs = loadSubmissions();
-  subs.unshift({ id:'sub_'+Date.now(), date:TODAY, publishedDate:pub, vertical:vertical, type:type,
-    title:title, summary:summary, whyItMatters:why||null, sourceName:source, sourceUrl:url });
-  saveSubmissions(subs);
+  var verticalLabels = {cards:'Small Biz Credit Cards', merchant:'Merchant Services', both:'Both'};
+  var typeLabels = {competitor:'Competitor Move', trend:'Industry Trend', company:'Company Intel', client:'Wells Fargo', creative:'In-Market Creative'};
+  var body = [
+    'URL: ' + url,
+    'Title: ' + title,
+    'Summary: ' + summary,
+    (why ? 'Why it matters: ' + why : ''),
+    'Published: ' + pub,
+    'Source: ' + source,
+    'Vertical: ' + (verticalLabels[vertical]||vertical),
+    'Type: ' + (typeLabels[type]||type)
+  ].filter(Boolean).join('\n\n');
+  var subject = 'INTEL SUBMISSION: ' + title;
+  window.location.href = 'mailto:kthorbahn@shiny.agency?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   closeModal('submitModalOverlay');
-  renderAll();
+  // Clear form
+  ['sub-url','sub-title','sub-summary','sub-why','sub-source'].forEach(function(id){ document.getElementById(id).value=''; });
 }
 
 // ===== EXPORT =====
