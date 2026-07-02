@@ -247,6 +247,44 @@
 </head>
 <body>
 
+<!-- Password protection -->
+<div id="auth-overlay" style="display:none;position:fixed;inset:0;background:#f7f8fa;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);padding:40px 48px;max-width:380px;width:100%;text-align:center;">
+    <div style="color:#00A99D;font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px;">Shiny Intel</div>
+    <div style="font-size:13px;color:#999;margin-bottom:28px;">Wells Fargo · Client Intelligence</div>
+    <input id="auth-input" type="password" placeholder="Enter password" autocomplete="current-password"
+      style="width:100%;padding:11px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px;"
+      onkeydown="if(event.key==='Enter')checkAuth()">
+    <div id="auth-error" style="color:#e53e3e;font-size:12px;margin-bottom:8px;min-height:16px;"></div>
+    <button onclick="checkAuth()"
+      style="width:100%;background:#00A99D;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">
+      Access Dashboard
+    </button>
+  </div>
+</div>
+<script>
+(function() {
+  var PW = 'Sh1ny1nt3ll';
+  var KEY = 'shiny_intel_auth';
+  function checkAuth() {
+    var val = document.getElementById('auth-input').value;
+    if (val === PW) {
+      localStorage.setItem(KEY, '1');
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('auth-error').textContent = '';
+    } else {
+      document.getElementById('auth-error').textContent = 'Incorrect password. Try again.';
+      document.getElementById('auth-input').value = '';
+      document.getElementById('auth-input').focus();
+    }
+  }
+  window.checkAuth = checkAuth;
+  if (localStorage.getItem(KEY) !== '1') {
+    document.getElementById('auth-overlay').style.display = 'flex';
+  }
+})();
+</script>
+
 <header>
   <div>
     <h1>Shiny Intelligence Dashboard</h1>
