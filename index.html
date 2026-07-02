@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Shiny Intel Dashboard",
+  "schemaVersion": 1,
+  "description": "Daily competitive intelligence dashboard for Shiny's Wells Fargo Client teams. Tabs for Small Biz Credit Cards and Merchant Services show the latest research, plus an Archive tab to browse all past dates. Each card shows the original article date and the date it was surfaced. Team members can submit their own articles via the + Submit button. History accumulates in intel-archive.json."
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiny Intelligence Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f8fa; color: #1a1a2e; }
+
+  header {
+    background: #fff; border-bottom: 3px solid #00A99D; padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  header h1 { color: #00A99D; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+  header .meta { font-size: 0.8rem; color: #666; }
+  header .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .submit-btn {
+    background: #00A99D; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap;
+  }
+  .submit-btn:hover { background: #008f85; }
+
+  .tabs { display: flex; padding: 0 32px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+  .tab-btn {
+    padding: 14px 24px; border: none; background: none; font-size: 0.9rem; font-weight: 600;
+    color: #666; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+  }
+  .tab-btn:hover { color: #00A99D; }
+  .tab-btn.active { color: #00A99D; border-bottom-color: #00A99D; }
+  .tab-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #f59e0b; color: #fff; font-size: 0.65rem; font-weight: 700;
+    min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px; margin-left: 6px; vertical-align: middle;
+  }
+
+  .panel { display: none; padding: 24px 32px; }
+  .panel.active { display: block; }
+
+  .filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 7px 16px; border: 1.5px solid #d1d5db; border-radius: 20px;
+    background: #fff; font-size: 0.82rem; font-weight: 500; color: #555; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: #00A99D; color: #00A99D; }
+  .filter-btn.active { background: #00A99D; border-color: #00A99D; color: #fff; }
+
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 18px; }
+
+  .intel-card {
+    background: #fff; border-radius: 10px; border-left: 4px solid #ccc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 18px 20px;
+    transition: box-shadow 0.15s; position: relative;
+  }
+  .intel-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .intel-card.type-client { border-left-color: #00A99D; }
+  .intel-card.type-competitor { border-left-color: #e53e3e; }
+  .intel-card.type-trend { border-left-color: #d69e2e; }
+  .intel-card.type-creative { border-left-color: #6b46c1; }
+  .intel-card.type-company { border-left-color: #2563eb; }
+  .intel-card.user-submitted { border-style: dashed; }
+
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
+  .card-title { font-size: 0.95rem; font-weight: 700; color: #111; line-height: 1.35; flex: 1; }
+  .card-tag {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 3px 9px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;
+  }
+  .tag-client { background: #e6f7f6; color: #00887e; }
+  .tag-competitor { background: #fff5f5; color: #c53030; }
+  .tag-trend { background: #fffbeb; color: #b7791f; }
+  .tag-creative { background: #f3f0ff; color: #553c9a; }
+  .tag-company { background: #eff6ff; color: #1d4ed8; }
+
+  .card-summary { font-size: 0.85rem; color: #444; line-height: 1.55; margin-bottom: 12px; }
+  .why-section { background: #f9fafb; border-radius: 6px; padding: 10px 13px; margin-bottom: 12px; }
+  .why-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #00A99D; margin-bottom: 5px; }
+  .why-text { font-size: 0.83rem; color: #333; line-height: 1.55; }
+
+  /* Card footer — dates are now prominent */
+  .card-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .card-dates { display: flex; flex-direction: column; gap: 2px; }
+  .published-date { font-size: 0.78rem; font-weight: 600; color: #333; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .date-label { color: #999; font-weight: 500; font-size: 0.72rem; }
+  .surfaced-date { font-size: 0.72rem; color: #aaa; margin-top: 1px; }
+
+  /* Stale flag: article is >30 days old when surfaced */
+  .stale-flag {
+    display: inline-flex; align-items: center; gap: 3px;
+    background: #fffbeb; border: 1px solid #fde68a; color: #b7791f;
+    font-size: 0.68rem; font-weight: 700; border-radius: 8px; padding: 2px 7px; white-space: nowrap;
+  }
+
+  .card-source { text-align: right; }
+  .card-source a { font-size: 0.75rem; color: #00A99D; text-decoration: none; font-weight: 500; }
+  .card-source a:hover { text-decoration: underline; }
+
+  /* Competiscan widget */
+  .competiscan-widget {
+    background: #f8f6ff; border: 1px solid #e2d9f3; border-radius: 8px;
+    padding: 8px 10px; margin-top: 10px;
+  }
+  .competiscan-widget-label {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    color: #7c5cbf; margin-bottom: 6px;
+  }
+  .competiscan-fields { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+  .competiscan-field { display: flex; align-items: baseline; gap: 6px; }
+  .competiscan-field-label { font-size: 0.68rem; color: #999; min-width: 52px; flex-shrink: 0; }
+  .competiscan-field-value {
+    font-size: 0.78rem; font-weight: 600; color: #3d2b7a;
+    background: #ede9ff; border-radius: 4px; padding: 1px 6px;
+  }
+  .competiscan-btn-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .competiscan-open-btn {
+    display: inline-block; background: #6b46c1; color: #fff; border-radius: 6px;
+    padding: 5px 12px; font-size: 0.78rem; font-weight: 600;
+    text-decoration: none; transition: background 0.15s; flex: 1; text-align: center; box-sizing: border-box;
+  }
+  .competiscan-open-btn:hover { background: #553c9a; }
+  .competiscan-pdf-btn {
+    display: inline-block; background: #fff; color: #6b46c1; border: 1.5px solid #6b46c1; border-radius: 6px;
+    padding: 5px 12px; font-size: 0.78rem; font-weight: 600;
+    text-decoration: none; transition: all 0.15s; flex: 1; text-align: center; box-sizing: border-box;
+  }
+  .competiscan-pdf-btn:hover { background: #f3f0ff; }
+  .competiscan-help { font-size: 0.68rem; color: #8b6ab5; line-height: 1.4; }
+
+  /* Badges */
+  .new-badge {
+    display: inline-block; background: #00A99D; color: #fff;
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle;
+  }
+  .submitted-badge {
+    display: inline-block; background: #f59e0b; color: #fff;
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle;
+  }
+  .delete-card-btn {
+    position: absolute; top: 12px; right: 12px; background: none; border: none;
+    color: #ccc; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px; border-radius: 4px; transition: color 0.15s;
+  }
+  .delete-card-btn:hover { color: #e53e3e; }
+
+  /* Archive */
+  .archive-controls { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
+  .archive-controls label { font-size: 0.82rem; font-weight: 600; color: #555; display: block; margin-bottom: 4px; }
+  .archive-controls input[type="date"], .archive-controls select {
+    padding: 8px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.85rem; background: #fff; color: #333;
+  }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: #999; font-size: 0.9rem; }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    z-index: 200; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; padding: 28px 32px;
+    max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .modal-header h2 { font-size: 1.1rem; font-weight: 700; color: #111; }
+  .modal-close { background: none; border: none; font-size: 1.4rem; color: #999; cursor: pointer; }
+  .modal-close:hover { color: #333; }
+
+  .form-row { margin-bottom: 16px; }
+  .form-row label { display: block; font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 5px; }
+  .form-row .req { color: #e53e3e; margin-left: 2px; }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #d1d5db; border-radius: 8px;
+    font-size: 0.87rem; font-family: inherit; color: #333; background: #fff; transition: border-color 0.15s; resize: vertical;
+  }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    outline: none; border-color: #00A99D; box-shadow: 0 0 0 3px rgba(0,169,157,0.1);
+  }
+  .form-row textarea { min-height: 80px; }
+  .form-hint { font-size: 0.75rem; color: #999; margin-top: 4px; }
+  .form-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
+  .btn-secondary {
+    padding: 9px 18px; border: 1.5px solid #d1d5db; border-radius: 8px;
+    background: #fff; font-size: 0.87rem; font-weight: 600; color: #555; cursor: pointer;
+  }
+  .btn-secondary:hover { border-color: #999; color: #333; }
+  .btn-primary {
+    padding: 9px 20px; border: none; border-radius: 8px; background: #00A99D;
+    font-size: 0.87rem; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #008f85; }
+
+  .export-code {
+    background: #f4f4f8; border: 1px solid #e0e0e8; border-radius: 8px; padding: 14px;
+    font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.75rem; color: #333;
+    max-height: 220px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; margin-bottom: 12px;
+  }
+  .export-instructions {
+    font-size: 0.83rem; color: #555; line-height: 1.55; margin-bottom: 16px;
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 13px;
+  }
+  .export-instructions strong { color: #b7791f; }
+  .copy-json-btn {
+    width: 100%; padding: 10px; background: #00A99D; color: #fff; border: none;
+    border-radius: 8px; font-size: 0.87rem; font-weight: 600; cursor: pointer; transition: background 0.15s;
+  }
+  .copy-json-btn:hover { background: #008f85; }
+  .copy-json-btn.copied-state { background: #2563eb; }
+
+  .submissions-banner {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+    padding: 12px 18px; margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .submissions-banner-text { font-size: 0.85rem; color: #b7791f; }
+  .submissions-banner-text strong { font-weight: 700; }
+  .export-archive-btn {
+    background: #f59e0b; color: #fff; border: none; border-radius: 6px;
+    padding: 7px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.15s;
+  }
+  .export-archive-btn:hover { background: #d97706; }
+
+  @media (max-width: 640px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    header { padding: 14px 16px; }
+    .panel { padding: 16px; }
+    .tabs { padding: 0 16px; overflow-x: auto; }
+    .form-row-2col { grid-template-columns: 1fr; }
+    .modal { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Shiny Intelligence Dashboard</h1>
+    <div class="meta">Wells Fargo &middot; Signify &amp; Merchant Services</div>
+    <div id="last-updated-display" style="font-size:0.75rem;color:#999;margin-top:3px;"></div>
+  </div>
+  <div class="header-right">
+    <button class="submit-btn" onclick="showSubmitModal()">+ Submit Article</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showPanel('cards',this)">Small Biz Credit Cards<span class="tab-count" id="count-cards" style="display:none"></span></button>
+  <button class="tab-btn" onclick="showPanel('merchant',this)">Merchant Services<span class="tab-count" id="count-merchant" style="display:none"></span></button>
+  <button class="tab-btn" onclick="showPanel('archive',this)">Archive</button>
+</div>
+
+<div id="panel-cards" class="panel active">
+  <div id="submissions-banner-cards"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+    <div class="filters" id="filters-cards" style="margin-bottom:0;">
+      <button class="filter-btn active" onclick="setFilter('cards','all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('cards','client',this)">Wells Fargo</button>
+      <button class="filter-btn" onclick="setFilter('cards','competitor',this)">Competitor Moves</button>
+      <button class="filter-btn" onclick="setFilter('cards','trend',this)">Industry Trends</button>
+      <button class="filter-btn" onclick="setFilter('cards','creative',this)">In-Market Creative</button>
+      <button class="filter-btn" onclick="setFilter('cards','company',this)">Company Intel</button>
+    </div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(3)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+  </div>
+  <div class="cards-grid" id="grid-cards"></div>
+</div>
+
+<div id="panel-merchant" class="panel">
+  <div id="submissions-banner-merchant"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+    <div class="filters" id="filters-merchant" style="margin-bottom:0;">
+      <button class="filter-btn active" onclick="setFilter('merchant','all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('merchant','client',this)">Wells Fargo</button>
+      <button class="filter-btn" onclick="setFilter('merchant','competitor',this)">Competitor Moves</button>
+      <button class="filter-btn" onclick="setFilter('merchant','trend',this)">Industry Trends</button>
+      <button class="filter-btn" onclick="setFilter('merchant','creative',this)">In-Market Creative</button>
+      <button class="filter-btn" onclick="setFilter('merchant','company',this)">Company Intel</button>
+    </div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(3)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+  </div>
+  <div class="cards-grid" id="grid-merchant"></div>
+</div>
+
+<div id="panel-archive" class="panel">
+  <div class="archive-controls">
+    <div><label>From date</label><input type="date" id="archiveFrom" onchange="renderArchive()"></div>
+    <div><label>To date</label><input type="date" id="archiveTo" onchange="renderArchive()"></div>
+    <div><label>Vertical</label>
+      <select id="archiveVertical" onchange="renderArchive()">
+        <option value="all">All Verticals</option>
+        <option value="cards">Small Biz Cards</option>
+        <option value="merchant">Merchant Services</option>
+      </select>
+    </div>
+    <div><label>Type</label>
+      <select id="archiveType" onchange="renderArchive()">
+        <option value="all">All Types</option>
+        <option value="client">Wells Fargo</option>
+        <option value="competitor">Competitor Moves</option>
+        <option value="trend">Industry Trends</option>
+        <option value="creative">In-Market Creative</option>
+        <option value="company">Company Intel</option>
+      </select>
+    </div>
+  </div>
+  <div class="cards-grid" id="grid-archive"></div>
+</div>
+
+<!-- Submit Modal -->
+<div class="modal-overlay" id="submitModalOverlay" onclick="handleOverlayClick(event,'submitModalOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Submit an Article</h2>
+      <button class="modal-close" onclick="closeModal('submitModalOverlay')">&times;</button>
+    </div>
+    <div class="form-row">
+      <label>Article URL <span class="req">*</span></label>
+      <input type="url" id="sub-url" placeholder="https://..." oninput="onUrlInput(this)">
+    </div>
+    <div class="form-row">
+      <label>Title <span class="req">*</span></label>
+      <input type="text" id="sub-title" placeholder="Punchy headline — name the company and the thing">
+    </div>
+    <div class="form-row">
+      <label>Summary <span class="req">*</span></label>
+      <textarea id="sub-summary" placeholder="2-4 sentences. What happened, what was said, what was observed."></textarea>
+    </div>
+    <div class="form-row">
+      <label>Why this matters <span style="color:#999;font-weight:400">(optional)</span></label>
+      <textarea id="sub-why" placeholder="Strategic implication for WF/Shiny."></textarea>
+    </div>
+    <div class="form-row-2col">
+      <div class="form-row" style="margin-bottom:0">
+        <label>Publication date <span class="req">*</span></label>
+        <input type="date" id="sub-published">
+        <div class="form-hint">When the article was published</div>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>Source name <span class="req">*</span></label>
+        <input type="text" id="sub-source" placeholder="e.g. Payments Dive">
+      </div>
+    </div>
+    <div class="form-row-2col" style="margin-top:14px">
+      <div class="form-row" style="margin-bottom:0">
+        <label>Vertical <span class="req">*</span></label>
+        <select id="sub-vertical">
+          <option value="cards">Small Biz Credit Cards</option>
+          <option value="merchant">Merchant Services</option>
+          <option value="both">Both</option>
+        </select>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>Type <span class="req">*</span></label>
+        <select id="sub-type">
+          <option value="competitor">Competitor Move</option>
+          <option value="trend">Industry Trend</option>
+          <option value="company">Company Intel</option>
+          <option value="client">Wells Fargo</option>
+          <option value="creative">In-Market Creative</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('submitModalOverlay')">Cancel</button>
+      <button class="btn-primary" onclick="submitArticle()">Add to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModalOverlay" onclick="handleOverlayClick(event,'exportModalOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Save to intel-archive.json</h2>
+      <button class="modal-close" onclick="closeModal('exportModalOverlay')">&times;</button>
+    </div>
+    <div class="export-instructions">
+      Copy this JSON, open <strong>intel-archive.json</strong> in your Research assistant folder, and paste it after the opening <strong>[</strong> bracket. Save — the next daily run will pick it up automatically.
+    </div>
+    <div class="export-code" id="exportCode"></div>
+    <button class="copy-json-btn" id="copyJsonBtn" onclick="copyExportJson()">Copy JSON to clipboard</button>
+    <div class="modal-actions" style="margin-top:16px;padding-top:0;border-top:none;">
+      <button class="btn-secondary" onclick="closeModal('exportModalOverlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// date = date surfaced/added; publishedDate = actual article publication date
+const LAST_UPDATED = "2026-06-30";
+const LAST_CHECKED = "2026-07-02";
+const RESEARCH_DATA = [
+  { date:"2026-06-30", publishedDate:"2026-06-20", vertical:"merchant", type:"competitor",
+    title:"Square launches 3.50% APY High Yield Savings for merchants — quietly becoming a bank for small business",
+    summary:"Square Financial Services began automatically enrolling Square sellers with a minimum $10,000 daily balance in a 3.50% APY High Yield Savings account — more than 8 times the national average. No application or action required; the benefit activates automatically when a merchant hits the balance threshold.",
+    whyItMatters:"Square is turning payment acceptance into the Trojan horse for full business banking. An automatic high-yield savings account means Square merchants earn more by doing nothing — their processing deposits become a savings instrument without switching a thing. Wells Fargo is a full-service bank and the natural owner of this merchant financial relationship. But if WF's business checking account earns less than what Square offers automatically, that's a retention risk hiding in plain sight.",
+    sourceName:"Block Investor Relations", sourceUrl:"https://investors.block.xyz/investor-news/news-details/2026/Square-Financial-Services-Introduces-3-50-APY-High-Yield-Savings-for-Square-Sellers-More-Than-8-Times-the-National-Average/default.aspx" },
+
+  { date:"2026-06-30", publishedDate:"2026-06-25", vertical:"merchant", type:"trend",
+    title:"PACE Act hits committee — bill would let Ramp and Stripe access Fed payment rails without 50-state licensing",
+    summary:"On June 25, 2026, the House Financial Services Committee debated the PACE Act, a bill that would create a federal registration pathway for non-bank fintechs to access the Fed payment rails — FedNow, FedACH, and FedWire — without requiring money transmitter licenses in every state. Stripe testified in support. Banks pushed back. The bill is still early in the legislative process.",
+    whyItMatters:"If the PACE Act passes, it removes one of the last structural moats protecting banks in small business payments. Direct Fed rail access would let Ramp, Stripe, and Brex offer real-time ACH, faster merchant settlement, and bank-grade treasury tools without the infrastructure cost of being a licensed bank.",
+    sourceName:"Payments Dive", sourceUrl:"https://www.paymentsdive.com/news/lawmakers-spar-over-payment-rails/823773/" },
+
+  { date:"2026-06-30", publishedDate:"2026-06-15", vertical:"merchant", type:"company",
+    title:"Fiserv CEO Mike Lyons out after 13 months — Clover's parent company in leadership transition",
+    summary:"Fiserv CEO Mike Lyons stepped down on June 15, 2026, after just 13 months on the job, departing to become CEO of Truist Financial. Takis Georgakopoulos has been named his replacement amid what observers describe as a difficult financial period for Fiserv. Fiserv is the parent company of Clover.",
+    whyItMatters:"A CEO departure at Fiserv is not a background story for WF's merchant team — it's a direct signal. New CEOs under pressure to deliver results nearly always look at pricing, fees, and partner terms. Industry pattern: processor leadership transitions are frequently followed by fee increases or contract renegotiations within 12-18 months.",
+    sourceName:"Merchant Cost Consulting", sourceUrl:"https://merchantcostconsulting.com/lower-credit-card-processing-fees/payment-news-today-june-2026/" },
+
+  { date:"2026-06-30", publishedDate:"2026-06-09", vertical:"merchant", type:"trend",
+    title:"Visa/Mastercard interchange settlement gets preliminary court approval — merchants could save $200B+ if it holds",
+    summary:"On June 9, 2026, US District Judge Brian Cogan granted preliminary approval to the revised Visa/Mastercard interchange settlement. Standard US credit card interchange rates would be capped at 1.25% for eight years. Projected merchant savings exceed $200 billion over the settlement's life. Final approval expected late 2026 or early 2027.",
+    whyItMatters:"If the settlement holds, the cost-of-acceptance conversation changes fundamentally. A 1.25% cap removes a core objection. More strategically: when processing costs compress across the industry, the battlefield shifts from price to platform — software, business intelligence, integrations become the primary differentiators.",
+    sourceName:"Payments Dive", sourceUrl:"https://www.paymentsdive.com/news/court-approves-visa-mastercard-settlement/822440/" },
+
+  { date:"2026-06-30", publishedDate:"2026-05-14", vertical:"merchant", type:"company",
+    title:"Block Q1 2026: 40% workforce cut, 62% EPS growth — Dorsey's AI-native Square is more dangerous, not less",
+    summary:"Block reported Q1 2026 results following its February restructuring that eliminated 40% of its workforce. Results: gross profit +27% YoY to $2.91B, adjusted EPS +52% to $0.85, full-year 2026 guidance calling for 62% EPS growth. CEO Jack Dorsey said 100% of employees now use AI tools, production code changes per engineer increased 2.5x.",
+    whyItMatters:"The instinct to read Block's mass layoffs as weakness is wrong — Q1 results prove it. A dramatically smaller, AI-native Square will ship product faster and move with fewer institutional constraints. WF's merchant team should recalibrate their competitive view: Square isn't a struggling challenger, it's a newly focused AI company wearing a payments company's clothes.",
+    sourceName:"247 Wall St / Block Q1 Earnings", sourceUrl:"https://247wallst.com/investing/2026/05/14/blocks-40-layoffs-will-drive-62-earnings-growth-if-you-dont-have-time-to-use-ai-you-dont-have-a-job/" },
+
+  { date:"2026-06-30", publishedDate:"2026-06-10", vertical:"cards", type:"competitor",
+    title:"Ramp's June AI Index: top companies spending 680x more on AI than the median — and Ramp is cashing in",
+    summary:"Ramp's June 2026 AI Index reveals massive AI spend dispersion: the top 1% of businesses spend $7,500/employee/month on AI tools, while the median firm spends $11.38. Monthly AI tool spend grew 4x from Feb 2025 to Feb 2026. Ramp launched AI Token Spend Management — pulling token-level usage data from Anthropic, OpenAI, and others directly into Ramp's platform.",
+    whyItMatters:"Ramp just created a new category of spend management and positioned itself as the essential platform for controlling AI costs — the fastest-growing line item in most business P&Ls. A small business owner who runs their AI subscriptions through Ramp gets a dashboard telling them where their money's going. What does Signify offer them?",
+    sourceName:"Ramp AI Index", sourceUrl:"https://ramp.com/data/ai-index" },
+
+  { date:"2026-06-30", publishedDate:"2026-06-01", vertical:"merchant", type:"trend",
+    title:"Agentic commerce goes live: AI agents are buying from merchants now, and the payment rules are being rewritten",
+    summary:"Agentic commerce — AI agents that autonomously compare merchants, select products, and complete purchases — shifted from concept to deployment in 2026. OpenAI and Stripe launched the Agentic Commerce Protocol in September 2025; Google launched its Universal Commerce Protocol in January 2026. McKinsey estimates AI agents could redirect $3-5 trillion in global retail spend by 2030.",
+    whyItMatters:"If an AI agent is choosing the merchant, the merchant's payment infrastructure needs to be machine-readable. A Clover terminal that doesn't integrate with emerging AI commerce protocols risks being invisible to AI-driven purchasing. WF doesn't need to act today, but they need to be asking the question now.",
+    sourceName:"Payment Executive", sourceUrl:"https://www.paymentexecutive.com/post/agentic-commerce-2026-the-payments-revolution-where-ai-agents-actually-buy-stuff" },
+
+  { date:"2026-06-30", publishedDate:"2026-05-07", vertical:"merchant", type:"company",
+    title:"Toast Q1 2026: ARR hits $2.2B (+26%), adds 7K locations — and they just raised their outlook",
+    summary:"Toast reported Q1 2026 results: ARR grew 26% YoY to $2.2B, net income more than doubled to $126M, Adjusted EBITDA hit $179M (+35% YoY), and they added approximately 7,000 net locations in the quarter. CEO Aman Narang raised full-year guidance.",
+    whyItMatters:"Toast is accelerating, not plateauing. Adding 7,000 net restaurant locations per quarter and doubling net income, Toast is systematically closing the gap on Clover. Market-share math: Toast at ~145K locations vs. Clover at ~175K — that gap narrows every quarter at this rate.",
+    sourceName:"Toast Q1 2026 Earnings", sourceUrl:"https://www.businesswire.com/news/home/20260507253488/en/Toast-Announces-First-Quarter-2026-Financial-Results" },
+
+  { date:"2026-06-29", publishedDate:"2026-04-24", vertical:"both", type:"company",
+    title:"Amex CEO Squeri: launching 8 new commercial products in 2026 — \"most significant single-year expansion in company history\"",
+    summary:"On the Q1 2026 earnings call, CEO Stephen Squeri announced plans to launch 8 new or enhanced commercial products in 2026, including a corporate cash back card and expense management software. Q1 revenue hit $18.9B (+11% YoY), EPS $4.28 (+18%), with card member spending up 10% — the highest quarterly growth in three years.",
+    whyItMatters:"Amex is in full commercial offensive mode. Eight new products in one year, record spending growth. The competitive pressure on Signify won't come in a single wave — it'll roll in quarter by quarter. This raises the urgency of helping WF find a clear, defensible position for Signify before the market gets more crowded.",
+    sourceName:"Amex Q1 2026 Earnings", sourceUrl:"https://seekingalpha.com/article/4893423-american-express-company-axp-q1-2026-earnings-call-transcript" },
+
+  { date:"2026-06-29", publishedDate:"2026-04-17", vertical:"both", type:"company",
+    title:"Capital One CEO Fairbank on Brex: \"Accelerates our journey in the business payments marketplace\"",
+    summary:"Capital One CEO Richard Fairbank's stated rationale for the $5.15B Brex acquisition: \"Acquiring Brex accelerates this journey, especially in the business payments marketplace.\" Q1 2026: net income $2.2B, revenue $15.2B (+52% YoY), purchase volume +40% — driven largely by the Discover acquisition.",
+    whyItMatters:"Fairbank's own words reveal the intent: Cap One isn't building a better credit card — they're building an end-to-end business payments platform. With Discover's consumer scale and Brex's software DNA, they're assembling the stack. For WF: what is WF's equivalent of Brex? That's a strategic brief question, more urgent now that Cap One has answered it for themselves.",
+    sourceName:"Capital One Q1 2026 Earnings", sourceUrl:"https://www.businesswire.com/news/home/20260417900015/en/Capital-One-Reports-First-Quarter-2026-Net-Income-of-$2.2-Billion-or-$3.34-Per-Share" },
+
+  { date:"2026-06-29", publishedDate:"2025-12-15", vertical:"both", type:"company",
+    title:"Wells Fargo retired its CMO role — marketing now decentralized to each business division",
+    summary:"Wells Fargo eliminated its centralized Chief Marketing Officer role after CMO Michael Lacorazza's departure, decentralizing marketing into individual business divisions. This follows a structural move where WF transferred ~$8B in small business loans and ~$6B in deposits from Commercial Banking into Consumer, Small and Business Banking.",
+    whyItMatters:"There is no single WF marketing leader who owns the Signify brand. Creative, media, and strategy decisions now live inside the business unit. Shiny's opportunity: be the external brand voice WF no longer has internally — and bring the brand rigor their decentralized structure can't generate on its own.",
+    sourceName:"Marketing Dive", sourceUrl:"https://www.marketingdive.com/news/wells-fargos-marketing-chief-is-leaving-as-bank-retires-that-position/600694/" },
+
+  { date:"2026-06-29", publishedDate:"2026-04-11", vertical:"both", type:"company",
+    title:"WF Q1 2026: strong across the board, but small biz moved into Consumer Bank — a structural signal",
+    summary:"Wells Fargo Q1 2026: EPS +15%, revenue +6%, loans +11%, deposits +7%. The strategic signal: WF transferred ~$8B in small business loans and ~$6B in deposits from Commercial Banking into Consumer, Small and Business Banking — formally repositioning small business as a consumer banking segment.",
+    whyItMatters:"Moving $14B of small business relationships into the consumer bank is an organizational statement: WF sees small business owners as consumers to be marketed to at scale. Signify briefs should be written with consumer marketing clarity — emotional resonance, digital-first, mass-market relevance — not commercial banking specs.",
+    sourceName:"Wells Fargo Q1 2026 Earnings", sourceUrl:"https://www.investing.com/news/transcripts/earnings-call-transcript-wells-fargo-q1-2026-beats-eps-forecasts-stock-dips-93CH-4613351" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"BofA's Preferred Rewards for Business can turn 1.5% cash back into 2.6% — and they're selling it hard",
+    summary:"Across 19 business credit card campaigns in the last 3 months, Bank of America prominently pushes its Preferred Rewards for Business program, which boosts base cash back by 25-75% for customers holding qualifying BofA/Merrill Lynch balances. At Platinum Honors, their 1.5% becomes 2.625% — mathematically beating Signify's flat 2% for their banking customers.",
+    whyItMatters:"The headline comparison — BofA 1.5% vs Signify 2% — makes WF look like the winner. But that comparison evaporates the moment a business owner has $50,000 in BofA deposits. BofA is deliberately manufacturing a scenario where their card beats Signify's math for their best Clients. This is a brief waiting to be written: what's the WF version of Preferred Rewards for Business?",
+    sourceName:"Competiscan (Bank of America, 19 campaigns, last 3 months)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-05-06-1730", competiscanProductId:"19850869" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"BofA actively targets Signify customers with \"We know you're busy. It's easy to switch.\"",
+    summary:"Bank of America's direct mail campaigns explicitly use switcher language — \"We know you're busy, but it's easy to switch\" and \"Accept your exclusive offer now\" — in personalized mailings with hard deadlines sent to business owners. 19 business credit card campaigns in 3 months.",
+    whyItMatters:"\"We know you're busy — it's easy to switch\" is a direct acquisition attack on the Signify customer base. BofA isn't waiting for business owners to come to them — they're identifying who looks like a Signify customer and sending direct mail with deadlines. A business owner who's been with Signify for a year and receives a personalized $500 BofA offer with a deadline needs a reason to stay beyond inertia.",
+    sourceName:"Competiscan (Bank of America Business Advantage campaigns, last 3 months)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-04-20-4662", competiscanProductId:"19902664" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"Signify's in-market message is \"deliberately simple\" — but still product-in, not customer-out",
+    summary:"Across 17 Wells Fargo Signify campaigns in the last 3 months, the brand line is relentlessly consistent: \"deliberately simple,\" \"no caps, no spending categories to track, no annual fee.\" WF mails heavy direct mail with a fixed structure: headline, three \"no\" features, 2% rate, $500 bonus, response deadline.",
+    whyItMatters:"Shiny now knows exactly what WF is saying. \"The right credit card can make running your business a little less complicated\" is their warmest line — and it's still a product claim. Compare to Cap One's \"Your business is already complicated enough.\" The gap isn't message volume. The gap is emotional depth.",
+    sourceName:"Competiscan (Wells Fargo Signify, 17 campaigns, last 3 months)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-06-25-1281", competiscanProductId:"20185574" },
+
+  { date:"2026-06-29", publishedDate:"2026-05-15", vertical:"both", type:"creative",
+    title:"WF's National Small Business Month email bundled cards + merchant processing in one send — a cross-team signal",
+    summary:"In May 2026, Wells Fargo sent a National Small Business Month celebration email to existing business card holders that cross-promoted merchant processing services, business checking, and business loans alongside the card relationship — all in a single send.",
+    whyItMatters:"Both the cards team and merchant services team at WF are already in the same conversation with the same customer. For the Shiny merchant team: WF is actively cross-selling from cards to Clover. Is Shiny having that integrated conversation with WF, or working each product separately?",
+    sourceName:"Competiscan (Wells Fargo National Small Business Month email, May 2026)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-05-19-2742", competiscanProductId:"19956270" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"Cap One's master message: \"Running a business is complex. Your spending doesn't have to be.\"",
+    summary:"Across 143 business credit card mailings and emails in the last 3 months, Capital One has anchored their Spark Cash messaging around a single human insight: small business owners are overwhelmed, and simplicity is the relief. Leading with the manager's peace of mind, not just the cardholder's rate.",
+    whyItMatters:"This is the brief Wells Fargo doesn't have yet for Signify. Cap One found the emotional entry point — not \"2% cash back\" but \"your business is already complicated enough.\" Signify's marketing is still product-in, not customer-out. The opportunity Shiny has: help WF find the human truth behind the Signify value proposition before Cap One owns \"simple\" entirely.",
+    sourceName:"Competiscan (Capital One, 143 campaigns, last 3 months)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-05-10-270", competiscanProductId:"19870753" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"Cap One is running two distinct emotional territories: pragmatist (Spark) vs. achiever (Venture Business)",
+    summary:"Competiscan reveals a clear messaging split in Capital One's in-market creative. Spark Cash emails lead with utility; Venture Business emails go emotional: \"You've earned more than just a title,\" \"You built a business worth celebrating\" — achievement language targeting business owners who see themselves as entrepreneurs.",
+    whyItMatters:"Capital One has done the segmentation work. They're talking to two different small business owner identities. Signify doesn't have that segmentation yet — it speaks to everyone the same way. Which identity does Signify want to own? That's a strategic brief question Shiny should be putting to WF.",
+    sourceName:"Competiscan (Capital One Spark + Venture Business campaigns)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-06-24-2151", competiscanProductId:"20191839" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-15", vertical:"cards", type:"creative",
+    title:"Amex launched Graphite Business Cash via influencer marketing — #AmexAmbassador creators explain it in their own words",
+    summary:"American Express launched their new Graphite Business Cash Unlimited Card (direct Signify competitor at 2% unlimited cash back) through paid social influencer campaigns. Creators including the founder of Cars & Bids posted first-person testimonials about using the card for their business.",
+    whyItMatters:"Amex is using influencer authenticity to launch the exact product competing with Signify. \"I use this for my business\" from a credible entrepreneur reaches small business owners in a way a traditional card ad never does. This is the channel Wells Fargo likely isn't using for Signify, and it's a gap worth examining.",
+    sourceName:"Competiscan (American Express Graphite social campaigns, June 2026)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-06-18-2631", competiscanProductId:"20169750" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"Amex made ChatGPT a credit card benefit — $300 back on ChatGPT Business subscriptions",
+    summary:"American Express is actively promoting a $300 annual credit on ChatGPT Business subscriptions as a benefit of the Business Platinum and Business Gold cards — positioned as part of \"over $4,000 in business and travel value annually.\"",
+    whyItMatters:"Amex just turned an AI productivity tool into a credit card benefit — and they did it first. This is the clearest signal yet about where business card value propositions are heading: beyond rewards into tools that help you run your business better. Wells Fargo has no equivalent technology partnership in market.",
+    sourceName:"Competiscan (American Express Business Platinum + Gold campaigns, June 2026)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-06-23-1602", competiscanProductId:"20169746" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-29", vertical:"cards", type:"creative",
+    title:"Amex is cross-selling business checking with card rewards — \"Banking that rewards you\"",
+    summary:"A significant portion of Amex's current small business marketing promotes Business Checking accounts with Membership Rewards point bonuses (30K-50K points) tied to card relationships. Campaign headline: \"This is banking that rewards you.\"",
+    whyItMatters:"Amex is playing the long game: if they win both the card AND the checking account, WF's relationship with that business owner gets thinner. WF has the structural advantage — they're already a full-service bank. But if WF isn't actively connecting those dots in their marketing, Amex will define what \"banking that rewards you\" means first.",
+    sourceName:"Competiscan (American Express Business Checking cross-sell campaigns, June 2026)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-06-20-1075", competiscanProductId:"20155628" },
+
+  { date:"2026-06-29", publishedDate:"2026-01-15", vertical:"cards", type:"client",
+    title:"WF narrows to one business card — all-in on Signify",
+    summary:"As of January 2026, Wells Fargo accepts new applications only for the Signify Business Cash Card. It earns unlimited 2% cash back, carries no annual fee, and offers a $500 welcome bonus after $5K spend in 3 months. SMB has been identified internally as a \"top priority rail\" for growth.",
+    whyItMatters:"Simplifying to one card gives WF a cleaner story to market — but it's also a bet. With Amex entering the 2% unlimited space and Cap One rebuilding its portfolio, Signify faces real competition on its home turf. \"Unlimited 2% cash back, no annual fee\" is no longer a differentiator on its own. What makes Signify the obvious choice when four other cards make the same promise?",
+    sourceName:"Banking Dive / CNBC", sourceUrl:"https://www.bankingdive.com/news/wells-fargo-smb-business-banking-marketing-digital-schneider/801785/" },
+
+  { date:"2026-06-29", publishedDate:"2026-04-10", vertical:"cards", type:"competitor",
+    title:"Capital One renames Spark Miles to Venture Business, adds new credits",
+    summary:"In April 2026, Capital One rebranded its Spark Miles cards as Venture Business and VentureOne Business: Spark = cash back, Venture = travel rewards. The new Venture Business card adds a $50 annual business travel credit, a $50 ad/software credit, and a welcome offer of up to 150,000 bonus miles.",
+    whyItMatters:"Capital One just gave their business card story a spine. Spark for cash, Venture for travel — simple, clear. That clarity is a competitive weapon. Signify doesn't have that same clarity of purpose yet — it's a technically solid product without a reason to believe that goes beyond the rate. Shiny's job: help WF find Signify's 'spine.'",
+    sourceName:"The Points Guy", sourceUrl:"https://thepointsguy.com/news/capital-one-spark-miles-venture-business/" },
+
+  { date:"2026-06-29", publishedDate:"2026-03-01", vertical:"cards", type:"competitor",
+    title:"Amex launches first new business card in 7 years — directly in Signify's lane",
+    summary:"American Express launched the Graphite Business Cash Unlimited Card in 2026, offering unlimited 2% cash back plus 5% on Amex travel bookings. Annual fee: $295. It's Amex's first brand-new business card in seven years.",
+    whyItMatters:"Amex entering the 2% unlimited category is a direct shot at where Signify lives. The $295 fee filters for premium Amex loyalists, but when Amex enters a category they bring brand cachet WF can't match. The opportunity: Signify is free, frictionless, and built for real small business owners. That's a story worth telling loudly.",
+    sourceName:"Payments Dive", sourceUrl:"https://www.paymentsdive.com/news/amex-floats-first-new-business-card-in-7-years/815618/" },
+
+  { date:"2026-06-29", publishedDate:"2026-04-07", vertical:"cards", type:"competitor",
+    title:"Capital One acquires Brex for $5.15B — bank buys its way into fintech small business",
+    summary:"Capital One closed its $5.15B acquisition of Brex on April 7, 2026. The deal signals a major bank's acknowledgment that digital-native spend management tools are now table stakes for winning small business relationships.",
+    whyItMatters:"A $5 billion acquisition is a confession: Capital One couldn't build the digital-native business banking experience fast enough, so they bought it. The question is whether WF sees this as a threat to react to or an opportunity to define their own modern take on small business banking.",
+    sourceName:"GetKleer / Multiple Sources", sourceUrl:"https://www.getkleercard.com/blogs/ramp-vs-brex" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-15", vertical:"cards", type:"competitor",
+    title:"Ramp raises $750M at $44B valuation — 70K+ customers and $1.5B ARR",
+    summary:"In June 2026, Ramp raised $750M led by ICONIQ Capital, GIC, and Ontario Teachers. The company counts 70,000+ business customers (up from 50K at year start) and $1.5B in annualized revenue. International expansion underway via acquisition of UK/EU payments platform Billhop.",
+    whyItMatters:"Ramp at $44B isn't a scrappy startup — it's infrastructure. At 70K business customers and $1.5B ARR, they've crossed from niche to mainstream. The real question for WF: how many of your existing small business Clients are already using Ramp alongside — or instead of — Signify?",
+    sourceName:"Sacra / PitchBook", sourceUrl:"https://sacra.com/c/ramp/" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-01", vertical:"cards", type:"competitor",
+    title:"Amazon drops Amex, picks US Bank for small business card partnership (August 2026)",
+    summary:"Amazon selected US Bank and Mastercard to replace American Express as issuer of its small business credit cards, with the transition effective August 14, 2026. This ends an 8-year co-brand partnership and hands US Bank major exposure to millions of Amazon small business buyers.",
+    whyItMatters:"US Bank just landed a co-brand that puts them in front of every business that buys on Amazon. Watch whether this card offers rewards that compete with Signify's everyday spend value — and whether WF has a response if it does.",
+    sourceName:"Upgraded Points / American Banker", sourceUrl:"https://upgradedpoints.com/news/amazon-business-cards-amex-to-us-bank/" },
+
+  { date:"2026-06-29", publishedDate:"2026-03-15", vertical:"cards", type:"trend",
+    title:"Average monthly SMB credit card spend doubled since 2020 — from $10K to $23K",
+    summary:"Analysis of 1.6 million U.S. small businesses found average monthly credit card spend rose from $10,000 in 2020 to $23,000 in 2025. About 74% of businesses now accept credit cards. The share of SMBs using fintech lenders grew from 17% to 29% over the same period.",
+    whyItMatters:"Business owners aren't just keeping a credit card in their drawer — they're running their businesses through it. Double the spend means double the stakes for winning that relationship. And when nearly 1 in 3 small businesses goes to fintech first for financing, WF needs to earn the relationship early.",
+    sourceName:"Ramp / Fed Small Business Survey", sourceUrl:"https://ramp.com/blog/business-credit-card-statistics-and-metrics" },
+
+  { date:"2026-06-29", publishedDate:"2026-01-15", vertical:"cards", type:"trend",
+    title:"Virtual cards and embedded payments becoming the new standard for small business",
+    summary:"Tokenized payment transactions are projected to exceed 1 trillion globally by end of 2026. Virtual cards — with spend controls, per-vendor limits, and accounting integrations — are growing rapidly as the default for modern business spending.",
+    whyItMatters:"The future of business payments is software-first. A card that can't plug into QuickBooks, set per-employee spend limits, or issue virtual numbers for vendor payments is going to feel analog fast. This is where Ramp and peers are winning — not on rewards, but on workflow integration. What is Signify's software story?",
+    sourceName:"Mastercard / Plaid / Visa", sourceUrl:"https://www.mastercard.com/us/en/news-and-trends/stories/2025/2026-payment-trends.html" },
+
+  { date:"2026-06-29", publishedDate:"2026-06-01", vertical:"merchant", type:"client",
+    title:"WF/Clover offers full hardware lineup with no early termination fees",
+    summary:"Wells Fargo offers the complete Clover suite — Station Solo, Mini, Compact, Go, Flex, and Gateway. Pricing adjusts automatically by volume, with no early termination fee or long-term commitment required. Merchants get built-in business management tools including sales reporting, employee management, invoicing, and virtual terminal.",
+    whyItMatters:"The WF/Clover product story is solid — full hardware range, flexible pricing, no lock-in. \"No early termination fee\" is a real differentiator — especially as Square and Toast push software integrations that create stickiness. Is that message leading in WF/Clover marketing, or buried in fine print?",
+    sourceName:"Wells Fargo", sourceUrl:"https://www.wellsfargo.com/biz/merchant/" },
+
+  { date:"2026-06-29", publishedDate:"2026-05-01", vertical:"merchant", type:"competitor",
+    title:"Square launches Managerbot AI — monitors inventory, staffing, and marketing in real time",
+    summary:"Square launched Managerbot in open beta — an AI tool built directly into the Square POS that monitors business performance in real time and issues recommendations on inventory, staffing, and marketing.",
+    whyItMatters:"Square isn't just processing payments — they're trying to become the operating brain of a small business. Managerbot massively increases switching costs. Once a restaurant relies on Square's AI for staffing recommendations and inventory alerts, they're not leaving over processing fees. Does Clover's platform have a comparable intelligence layer?",
+    sourceName:"Digital Transactions / Payments Dive", sourceUrl:"https://www.digitaltransactions.net/square-unveils-its-managerbot-and-toasts-new-device-goes-abroad/" },
+
+  { date:"2026-06-29", publishedDate:"2026-04-15", vertical:"merchant", type:"competitor",
+    title:"Toast launches Drive-Thru product, opens to 140K U.S. quick-service restaurants",
+    summary:"Toast launched Toast Drive-Thru in 2026, targeting an estimated 140,000 drive-through restaurants in the U.S. — a market where Clover has historically been strong. Toast also expanded internationally with Toast Go 3 now available in Australia, Canada, Ireland, and the UK.",
+    whyItMatters:"Toast expanding into drive-throughs is a direct competitive incursion into territory where WF/Clover has traditionally been well-positioned. Quick-service restaurants running on Clover devices could be active target accounts for Toast's sales team right now. This isn't a future threat — it's live.",
+    sourceName:"Digital Transactions", sourceUrl:"https://www.digitaltransactions.net/square-unveils-its-managerbot-and-toasts-new-device-goes-abroad/" },
+
+  { date:"2026-06-29", publishedDate:"2026-05-20", vertical:"merchant", type:"trend",
+    title:"35% of small businesses now surcharge — but nearly a third see customers walk away",
+    summary:"More than a third of small businesses (35%) now add credit card surcharges to offset processing costs. However, 32% of merchants report customers occasionally or frequently abandon purchases when they see a surcharge.",
+    whyItMatters:"\"I need to offset processing costs, but surcharges are costing me sales\" is a real, felt pain. If WF/Clover can credibly help merchants manage this trade-off better — through lower effective rates, better volume pricing, or customer communication tools — that's a meaningful, customer-centric promise.",
+    sourceName:"JD Power / Beacon Payments", sourceUrl:"https://www.jdpower.com/business/press-releases/2026-us-merchant-services-satisfaction-study" },
+
+  { date:"2026-06-29", publishedDate:"2026-01-15", vertical:"merchant", type:"trend",
+    title:"Embedded and invisible payments becoming the default — hardware era is fading",
+    summary:"2026 marks a major shift toward \"embedded payments\" — where transactions happen in the background of the app or software a merchant already uses. Cashier-less checkouts, digital wallets growing at ~20% annually, and BNPL integration are all accelerating. The global merchant services market is projected at $47.93B in 2026, growing to $85.2B by 2035.",
+    whyItMatters:"The \"terminal on the counter\" era is starting to feel dated. If WF/Clover's story is still primarily about the device, that's a positioning risk. What is Clover's software platform story, and is WF telling it?",
+    sourceName:"Beacon Payments / Payments Dive", sourceUrl:"https://www.beaconpayments.com/blog/merchant-services-trends-in-2026-the-year-payments-disappear-and-intelligence-takes-over" },
+
+  { date:"2026-06-29", publishedDate:"2026-03-01", vertical:"merchant", type:"trend",
+    title:"Real-time settlement going mainstream via FedNow and RTP",
+    summary:"FedNow and The Clearing House's RTP networks are now mainstream infrastructure, enabling instant fund transfers for merchants. Real-time settlement is becoming a baseline expectation for restaurant and retail owners who need rapid access to cash flow.",
+    whyItMatters:"For a restaurant or retailer running on thin margins, waiting 2-3 days for processing funds is a genuine pain. If WF/Clover offers faster settlement than Square or Toast, that's a message worth making a centerpiece of their marketing.",
+    sourceName:"Payments Journal / Payments Dive", sourceUrl:"https://www.paymentsjournal.com/the-3-key-trends-that-will-shape-merchant-payments-in-2026/" }
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+const COMPETISCAN_SEARCH = "https://www.competiscan.com/fullsearch.php?searchview=2";
+const STORAGE_KEY = "shiny_user_submissions_v2";
+
+// ===== DATE HELPERS =====
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+function fmtDate(str) {
+  if (!str) return '';
+  var p = str.split('-');
+  if (p.length !== 3) return str;
+  var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return m[parseInt(p[1],10)-1] + ' ' + parseInt(p[2],10) + ', ' + p[0];
+}
+
+// ===== USER SUBMISSIONS =====
+function loadSubmissions() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveSubmissions(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+function deleteSubmission(id) {
+  saveSubmissions(loadSubmissions().filter(function(s){ return s.id !== id; }));
+  renderAll();
+}
+function getAllItems() {
+  var subs = loadSubmissions().map(function(s){ return Object.assign({}, s, {_userSubmitted:true}); });
+  return subs.concat(RESEARCH_DATA).sort(function(a,b){ return b.date.localeCompare(a.date); });
+}
+
+// ===== PANEL STATE =====
+var panelFilters = { cards:'all', merchant:'all' };
+
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'archive') renderArchive();
+}
+function setFilter(panel, type, btn) {
+  panelFilters[panel] = type;
+  document.querySelectorAll('#filters-' + panel + ' .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderPanel(panel);
+}
+function getVerticalItems(v) {
+  return getAllItems().filter(function(d){ return d.vertical === v || d.vertical === 'both'; });
+}
+function renderAll() {
+  renderPanel('cards'); renderPanel('merchant'); updateTabCounts(); renderSubmissionsBanners();
+}
+function updateTabCounts() {
+  ['cards','merchant'].forEach(function(v) {
+    var n = getVerticalItems(v).filter(function(d){ return d._userSubmitted; }).length;
+    var el = document.getElementById('count-' + v);
+    if (el) { el.textContent = n || ''; el.style.display = n ? '' : 'none'; }
+  });
+}
+function renderSubmissionsBanners() {
+  ['cards','merchant'].forEach(function(panel) {
+    var banner = document.getElementById('submissions-banner-' + panel);
+    if (!banner) return;
+    var n = getVerticalItems(panel).filter(function(d){ return d._userSubmitted; }).length;
+    if (!n) { banner.innerHTML = ''; return; }
+    banner.innerHTML = '<div class="submissions-banner"><div class="submissions-banner-text"><strong>' + n +
+      ' submission' + (n>1?'s':'') + '</strong> from your team (dashed border). Save to archive to make them permanent.</div>' +
+      '<button class="export-archive-btn" onclick="showExportModal()">Save to Archive &rarr;</button></div>';
+  });
+}
+const RECENCY_DAYS = 7;
+function renderPanel(panel) {
+  var f = panelFilters[panel];
+  var items = getVerticalItems(panel);
+  // Limit main panels to last 7 days; user submissions always show
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - RECENCY_DAYS);
+  var cutoffStr = cutoff.toISOString().slice(0,10);
+  items = items.filter(function(d){ return d._userSubmitted || (d.date||'') >= cutoffStr; });
+  if (f !== 'all') items = items.filter(function(d){ return d.type === f; });
+  renderCards('grid-' + panel, items, true);
+}
+
+// ===== COMPETISCAN =====
+function extractCompetiscanCompany(s) {
+  var m = (s||'').match(/Competiscan \(([^,)]+)/);
+  return m ? m[1].trim() : null;
+}
+function isCompetiscanItem(item) {
+  return (item.sourceUrl || '') === 'https://www.competiscan.com' || !!(item.competiscanEntryId);
+}
+// Returns a Competiscan widget HTML string, or null if not a Competiscan item
+function renderCompetiscanWidget(item) {
+  if (!isCompetiscanItem(item)) return null;
+  var co = extractCompetiscanCompany(item.sourceName) || '';
+  var productId = item.competiscanProductId || '';
+  if (productId) {
+    var htmlUrl = 'https://www.competiscan.com/processed-html.php?id=' + encodeURIComponent(productId);
+    var pdfUrl  = 'https://www.competiscan.com/productDocuments.php?id=' + encodeURIComponent(productId);
+    var coLabel = co ? (' &mdash; ' + escHtml(co)) : '';
+    return '<div class="competiscan-widget">' +
+      '<div class="competiscan-widget-label">&#128269; Competiscan Creative' + coLabel + '</div>' +
+      '<div class="competiscan-btn-row">' +
+      '<a class="competiscan-open-btn" href="' + htmlUrl + '" target="_blank">View Live Creative &rarr;</a>' +
+      '<a class="competiscan-pdf-btn" href="' + pdfUrl + '" target="_blank">View PDF &rarr;</a>' +
+      '</div>' +
+      '<div class="competiscan-help">Opens directly in Competiscan &mdash; must be logged in</div>' +
+      '</div>';
+  }
+  // Fallback: no productId, show search guidance
+  var entryId = item.competiscanEntryId || '';
+  var dateHint = '';
+  if (entryId) {
+    var parts = entryId.split('-');
+    if (parts.length >= 3) {
+      var monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var m = parseInt(parts[1], 10);
+      dateHint = monthNames[m] + ' ' + parts[0];
+    }
+  }
+  return '<div class="competiscan-widget">' +
+    '<div class="competiscan-widget-label">&#128269; Find on Competiscan</div>' +
+    (co ? '<div class="competiscan-field"><span class="competiscan-field-label">Company:</span><span class="competiscan-field-value">' + escHtml(co) + '</span></div>' : '') +
+    (dateHint ? '<div class="competiscan-field"><span class="competiscan-field-label">Month:</span><span class="competiscan-field-value">' + escHtml(dateHint) + '</span></div>' : '') +
+    '<a class="competiscan-open-btn" href="' + COMPETISCAN_SEARCH + '" target="_blank">Open Competiscan Search &rarr;</a>' +
+    '</div>';
+}
+function renderSourceLink(item) {
+  if (isCompetiscanItem(item)) return 'Competiscan';
+  var url = item.sourceUrl || '';
+  if (!url) return escHtml(item.sourceName||'');
+  return '<a href="' + escHtml(url) + '" target="_blank">' + escHtml(item.sourceName||'Source') + '</a>';
+}
+
+// ===== DATES =====
+function renderDates(item) {
+  var pub = item.publishedDate || item.date;
+  var added = item.date;
+  var staleHtml = '';
+  if (pub && added && pub < added) {
+    var gap = daysBetween(pub, added);
+    if (gap > 30) {
+      staleHtml = ' <span class="stale-flag">&#9888; ' + gap + 'd old at surfacing</span>';
+    }
+  }
+  var html = '<div class="published-date"><span class="date-label">Published</span> ' + fmtDate(pub) + staleHtml + '</div>';
+  if (pub !== added) {
+    html += '<div class="surfaced-date">Surfaced ' + fmtDate(added) + '</div>';
+  }
+  return '<div class="card-dates">' + html + '</div>';
+}
+
+// ===== CARDS =====
+function typeLabel(t) {
+  var m = {client:'Wells Fargo',competitor:'Competitor',trend:'Industry Trend',creative:'In-Market Creative',company:'Company Intel'};
+  return m[t]||t;
+}
+function renderCards(gridId, items, showNew) {
+  var grid = document.getElementById(gridId);
+  if (!grid) return;
+  if (!items.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">&#128581;</div><div>No items match this filter.</div></div>';
+    return;
+  }
+  grid.innerHTML = items.map(function(item) {
+    var isNew = showNew && item.date === TODAY && !item._userSubmitted;
+    var isSub = !!item._userSubmitted;
+    var badge = isNew ? '<span class="new-badge">New</span>' : (isSub ? '<span class="submitted-badge">Submitted</span>' : '');
+    var delBtn = isSub ? '<button class="delete-card-btn" onclick="deleteSubmission(\'' + item.id + '\')" title="Remove">&times;</button>' : '';
+    var why = item.whyItMatters ? '<div class="why-section"><div class="why-label">Why this matters</div><div class="why-text">' + escHtml(item.whyItMatters) + '</div></div>' : '';
+    var csWidget = renderCompetiscanWidget(item) || '';
+    return '<div class="intel-card type-' + item.type + (isSub?' user-submitted':'') + '">' + delBtn +
+      '<div class="card-header"><div class="card-title">' + escHtml(item.title) + badge + '</div>' +
+      '<span class="card-tag tag-' + item.type + '">' + typeLabel(item.type) + '</span></div>' +
+      '<div class="card-summary">' + escHtml(item.summary) + '</div>' + why + csWidget +
+      '<div class="card-footer">' + renderDates(item) +
+      '<div class="card-source">' + renderSourceLink(item) + '</div></div></div>';
+  }).join('');
+}
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== ARCHIVE =====
+function renderArchive() {
+  var from = document.getElementById('archiveFrom').value;
+  var to = document.getElementById('archiveTo').value;
+  var v = document.getElementById('archiveVertical').value;
+  var t = document.getElementById('archiveType').value;
+  var items = getAllItems();
+  if (from) items = items.filter(function(d){ return (d.publishedDate||d.date) >= from; });
+  if (to) items = items.filter(function(d){ return (d.publishedDate||d.date) <= to; });
+  if (v !== 'all') items = items.filter(function(d){ return d.vertical === v || d.vertical === 'both'; });
+  if (t !== 'all') items = items.filter(function(d){ return d.type === t; });
+  renderCards('grid-archive', items, false);
+}
+
+// ===== SUBMIT MODAL =====
+function showSubmitModal() {
+  ['sub-url','sub-title','sub-summary','sub-why','sub-source'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('sub-vertical').value = 'cards';
+  document.getElementById('sub-type').value = 'competitor';
+  document.getElementById('sub-published').value = TODAY;
+  document.getElementById('submitModalOverlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('sub-url').focus(); }, 50);
+}
+function onUrlInput(input) {
+  var url = input.value.trim();
+  if (url && !document.getElementById('sub-source').value) {
+    try { document.getElementById('sub-source').value = new URL(url).hostname.replace('www.',''); } catch(e){}
+  }
+}
+function submitArticle() {
+  var url = document.getElementById('sub-url').value.trim();
+  var title = document.getElementById('sub-title').value.trim();
+  var summary = document.getElementById('sub-summary').value.trim();
+  var why = document.getElementById('sub-why').value.trim();
+  var pub = document.getElementById('sub-published').value;
+  var source = document.getElementById('sub-source').value.trim();
+  var vertical = document.getElementById('sub-vertical').value;
+  var type = document.getElementById('sub-type').value;
+  if (!url || !title || !summary || !source || !pub) {
+    alert('Please fill in URL, Title, Summary, Publication date, and Source name.');
+    return;
+  }
+  var subs = loadSubmissions();
+  subs.unshift({ id:'sub_'+Date.now(), date:TODAY, publishedDate:pub, vertical:vertical, type:type,
+    title:title, summary:summary, whyItMatters:why||null, sourceName:source, sourceUrl:url });
+  saveSubmissions(subs);
+  closeModal('submitModalOverlay');
+  renderAll();
+}
+
+// ===== EXPORT =====
+function showExportModal() {
+  var subs = loadSubmissions();
+  if (!subs.length) { alert('No submissions to export.'); return; }
+  var jsonStr = subs.map(function(s) {
+    return JSON.stringify({ date:s.publishedDate||s.date, publishedDate:s.publishedDate||s.date,
+      vertical:s.vertical, type:s.type, title:s.title, summary:s.summary,
+      whyItMatters:s.whyItMatters||'', sourceName:s.sourceName, sourceUrl:s.sourceUrl }, null, 2);
+  }).join(',\n');
+  document.getElementById('exportCode').textContent = jsonStr;
+  document.getElementById('copyJsonBtn').textContent = 'Copy JSON to clipboard';
+  document.getElementById('copyJsonBtn').classList.remove('copied-state');
+  document.getElementById('exportModalOverlay').classList.add('open');
+}
+function copyExportJson() {
+  navigator.clipboard.writeText(document.getElementById('exportCode').textContent).then(function() {
+    var btn = document.getElementById('copyJsonBtn');
+    btn.textContent = 'Copied!'; btn.classList.add('copied-state');
+    setTimeout(function(){ btn.textContent = 'Copy JSON to clipboard'; btn.classList.remove('copied-state'); }, 3000);
+  });
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function handleOverlayClick(e, id) { if (e.target.id === id) closeModal(id); }
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+  var dates = getAllItems().map(function(d){ return d.publishedDate||d.date; }).sort();
+  document.getElementById('archiveFrom').value = dates[0] || '';
+  document.getElementById('archiveTo').value = TODAY;
+  var metaParts = [];
+  if (LAST_CHECKED) {
+    var dc = new Date(LAST_CHECKED + 'T12:00:00');
+    metaParts.push('Checked ' + dc.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}));
+  }
+  if (LAST_UPDATED) {
+    var du = new Date(LAST_UPDATED + 'T12:00:00');
+    metaParts.push('Updated ' + du.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}));
+  }
+  if (metaParts.length) {
+    document.getElementById('last-updated-display').textContent = metaParts.join(' · ');
+  }
+  renderAll();
+});
+</script>
+</body>
+</html>
