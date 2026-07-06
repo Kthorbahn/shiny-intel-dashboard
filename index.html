@@ -701,7 +701,10 @@ const RESEARCH_DATA = [
     sourceName:"Payments Journal / Payments Dive", sourceUrl:"https://www.paymentsjournal.com/the-3-key-trends-that-will-shape-merchant-payments-in-2026/" }
 ];
 
-const TODAY = new Date().toISOString().slice(0,10);
+// TODAY is pinned to LAST_CHECKED (the pipeline's own "today"), not the real device clock —
+// this dashboard's data lives on a narrative timeline (dates into 2026), so using the real
+// system date here would break both the 7-day recency window and the Archive's default range.
+const TODAY = LAST_CHECKED;
 const COMPETISCAN_SEARCH = "https://www.competiscan.com/fullsearch.php?searchview=2";
 const STORAGE_KEY = "shiny_user_submissions_v2";
 
@@ -775,8 +778,8 @@ const RECENCY_DAYS = 7;
 function renderPanel(panel) {
   var f = panelFilters[panel];
   var items = getVerticalItems(panel);
-  // Limit main panels to last 7 days; user submissions always show
-  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - RECENCY_DAYS);
+  // Limit main panels to last 7 days relative to TODAY (pinned to LAST_CHECKED), not the real clock
+  var cutoff = new Date(TODAY + 'T00:00:00'); cutoff.setDate(cutoff.getDate() - RECENCY_DAYS);
   var cutoffStr = cutoff.toISOString().slice(0,10);
   items = items.filter(function(d){ return d._userSubmitted || (d.date||'') >= cutoffStr; });
   if (f !== 'all') items = items.filter(function(d){ return d.type === f; });
