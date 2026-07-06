@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<script type="application/json" id="cowork-artifact-meta">
+<!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
 {
   "name": "Shiny Intel Dashboard",
   "schemaVersion": 1,
-  "description": "Daily competitive intelligence dashboard for Shiny's Wells Fargo Client teams. Tabs for Small Biz Credit Cards and Merchant Services show the latest research, plus an Archive tab to browse all past dates. Each card shows the original article date and the date it was surfaced. Team members can submit their own articles via the + Submit button. History accumulates in intel-archive.json."
+  "description": "Daily competitive intelligence dashboard for Shiny's Wells Fargo Client teams. Tabs for Small Biz Credit Cards and Merchant Services show the latest research, plus an Archive tab to browse all past dates. Each item has a \"Why this matters\" take in Shiny's strategic voice. Refreshed daily via scheduled task; history accumulates in intel-archive.json."
 }
 </script>
 <html lang="en">
@@ -447,9 +446,41 @@
 
 <script>
 // date = date surfaced/added; publishedDate = actual article publication date
-const LAST_UPDATED = "2026-06-30";
-const LAST_CHECKED = "2026-07-02";
+const LAST_UPDATED = "2026-07-06";
+const LAST_CHECKED = "2026-07-06";
 const RESEARCH_DATA = [
+  { date:"2026-07-06", publishedDate:"2026-07-01", vertical:"merchant", type:"competitor",
+    title:"Square puts sellers inside ChatGPT and Claude — orders route straight to POS, no marketplace fees",
+    summary:"On July 1, 2026, Square launched a ChatGPT app and Claude plugin letting AI assistants discover participating restaurants, browse menus, and place orders on a seller's behalf. Square Food & Beverage sellers with an activated Online Ordering profile are first to go live; orders route directly into the seller's existing POS and Kitchen Display System with no additional setup, no extra fees, and no marketplace commission. Retail, services, and appointment-based commerce are described as coming soon.",
+    whyItMatters:"This is Square turning the agentic-commerce trend into a live product — and pairing it with a pricing move (zero marketplace commission) aimed squarely at merchants tired of delivery-app take rates. Every restaurant that opts into 'order through ChatGPT' with zero setup is a merchant Square just made stickier, for free. For WF/Clover, this is a concrete answer to the standing question of whether they're building for the AI agent, not just the human customer. Clover has no equivalent yet, and Square just set the bar for what 'AI-ready commerce' looks like to a restaurant owner.",
+    sourceName:"Square / VentureBeat / PYMNTS", sourceUrl:"https://squareup.com/us/en/press/claude-chatgpt-integrations" },
+
+  { date:"2026-07-06", publishedDate:"2026-07-01", vertical:"cards", type:"creative",
+    title:"Amex dangles Delta Medallion status to Business card holders — elite travel status as the new acquisition lever",
+    summary:"Across multiple email and display campaigns from June 25-July 1, American Express pushed Delta SkyMiles Reserve and Gold Business Card holders toward airline elite status — \"Reach Silver Medallion Status,\" \"Put Reaching Gold Elite Status on Your Business Agenda\" (paired with Marriott) — all carrying July 15 deadlines. The pitch bundles Delta Sky Club access, bonus miles (90K-125K), and status progress tied directly to card spend.",
+    whyItMatters:"Amex is selling status, not cash back — a lever Signify's flat 2% has no answer for. A business owner chasing Medallion status has a reason to concentrate spend on one card that a rate comparison can't beat. It's the same playbook as the ChatGPT credit and Business Checking cross-sell already in the archive: Amex keeps finding non-rate hooks that make switching away from them costly. Worth asking WF: does Signify need a 'why stay' story beyond the math, especially for card holders who travel for business?",
+    sourceName:"Competiscan (American Express Delta/Marriott co-brand campaigns, June 25-July 1, 2026)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-07-01-1165", competiscanProductId:"20223434" },
+
+  { date:"2026-07-06", publishedDate:"2026-06-30", vertical:"cards", type:"company",
+    title:"Senator Warren grills Capital One CEO Fairbank at Senate hearing — CFPB rollback puts banks under political spotlight",
+    summary:"On June 30, 2026, Senator Elizabeth Warren confronted Capital One CEO Richard Fairbank at a Senate Banking Committee hearing, pressing him on Capital One's credit card practices and the implications of the CFPB's reduced enforcement capacity. Warren challenged Fairbank on whether Cap One changed consumer-facing practices since CFPB oversight weakened, and on potential consumer harm from the Discover acquisition. The hearing drew significant banking industry attention as one of the first high-profile accountability moments for a major card issuer since CFPB enforcement scaled back.",
+    whyItMatters:"This is reputational pressure on Capital One at the exact moment they're integrating Discover and absorbing Brex — a triple transformation that demands flawless execution. Public scrutiny like this rarely changes business outcomes directly, but it shapes the narrative around a brand. For Shiny: Cap One's dominance as a small business card issuer now comes with political headwinds and integration complexity. A bank with clean regulatory standing and a simple, single-product story (Signify) has a credibility argument to make to risk-averse small business owners who pay attention to these things.",
+    sourceName:"Banking Dive", sourceUrl:"https://www.bankingdive.com" },
+
+  { date:"2026-07-06", publishedDate:"2026-06-25", vertical:"both", type:"trend",
+    title:"X Money goes live — Elon Musk's payments play puts a wallet inside 250M daily users",
+    summary:"X (formerly Twitter) launched X Money on June 25, 2026 — a built-in digital wallet that lets users store funds, send peer-to-peer payments, and spend via an X debit card (issued in partnership with Visa). Users can link bank accounts or debit cards to fund their X Money balance. X has explicitly positioned this as the first step toward making X an 'everything app' with financial services at the center — the model is WeChat Pay in China, where payments live inside a social platform used daily.",
+    whyItMatters:"X Money doesn't need to be a bank to matter. If even 10% of X's daily active users load money into their wallet for peer-to-peer payments, that's meaningful transaction volume diverted away from traditional card networks. More importantly: this expands the mental model of where payments can live. For merchants, an X payment option eventually becomes a checkout consideration. The playbook is WeChat Pay — and WeChat Pay now processes more transactions than Visa in China. Shiny should be watching whether X Money starts showing up in small business owner conversations about how their customers want to pay.",
+    sourceName:"Bloomberg / Yahoo Finance", sourceUrl:"https://finance.yahoo.com" },
+
+  { date:"2026-07-06", publishedDate:"2026-06-01", vertical:"cards", type:"creative",
+    title:"Capital One calls this their \"best Spark Cash Plus offer ever\" — $1,200 welcome bonus in a targeted DM",
+    summary:"Capital One sent a targeted direct mail piece in early June 2026 promoting what they explicitly called their 'best Spark Cash Plus offer ever' — a $1,200 welcome bonus (structured as cash back earned after qualifying spend). The piece used first-person urgent language, a hard response deadline, and premium direct mail production.",
+    whyItMatters:"Capital One is swinging hard on acquisition with their highest-stated welcome offer for Spark Cash Plus. \"Best offer ever\" is a claim they don't make lightly — it signals they're in an aggressive push to acquire business card holders before their integration with Discover and Brex is complete. A $1,200 welcome bonus will beat Signify's $500 offer in any side-by-side comparison. WF needs to win the conversation before Cap One gets a business owner's attention — because once someone's comparing bonus sizes, Signify's cleaner story has a harder time breaking through.",
+    sourceName:"Competiscan (Capital One Spark Cash Plus direct mail, June 2026)", sourceUrl:"https://www.competiscan.com",
+    competiscanEntryId:"2026-06-01-5838", competiscanProductId:"20201568" },
+
   { date:"2026-06-30", publishedDate:"2026-06-20", vertical:"merchant", type:"competitor",
     title:"Square launches 3.50% APY High Yield Savings for merchants — quietly becoming a bank for small business",
     summary:"Square Financial Services began automatically enrolling Square sellers with a minimum $10,000 daily balance in a 3.50% APY High Yield Savings account — more than 8 times the national average. No application or action required; the benefit activates automatically when a merchant hits the balance threshold.",
