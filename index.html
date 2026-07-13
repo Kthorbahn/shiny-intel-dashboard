@@ -152,6 +152,23 @@
   }
   .delete-card-btn:hover { color: #e53e3e; }
 
+  /* Shared-with-Client log */
+  .share-row { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e5e7eb; }
+  .share-event {
+    font-size: 0.75rem; color: #444; margin-bottom: 4px;
+    display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap;
+  }
+  .share-event .dot { color: #00A99D; font-size: 0.6rem; }
+  .share-event .share-date { color: #aaa; }
+  .share-btn {
+    background: #fff; border: 1.5px dashed #00A99D; color: #00887e;
+    border-radius: 20px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .share-btn:hover { background: #e6f7f6; }
+  .share-btn.has-shares { border-style: solid; }
+  .share-toggle-btn.active { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+
   /* Archive */
   .archive-search-row { margin-bottom: 12px; }
   .archive-search-row input:focus { border-color: #00A99D; box-shadow: 0 0 0 3px rgba(0,169,157,0.12); }
@@ -313,6 +330,7 @@
       <button class="filter-btn" onclick="setFilter('cards','trend',this)">Industry Trends</button>
       <button class="filter-btn" onclick="setFilter('cards','creative',this)">In-Market Creative</button>
       <button class="filter-btn" onclick="setFilter('cards','company',this)">Company Intel</button>
+      <button class="filter-btn share-toggle-btn" id="shareToggle-cards" onclick="toggleShareFilter('cards')">Not Shared Only</button>
     </div>
     <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(3)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
@@ -329,6 +347,7 @@
       <button class="filter-btn" onclick="setFilter('merchant','trend',this)">Industry Trends</button>
       <button class="filter-btn" onclick="setFilter('merchant','creative',this)">In-Market Creative</button>
       <button class="filter-btn" onclick="setFilter('merchant','company',this)">Company Intel</button>
+      <button class="filter-btn share-toggle-btn" id="shareToggle-merchant" onclick="toggleShareFilter('merchant')">Not Shared Only</button>
     </div>
     <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(3)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
@@ -359,6 +378,10 @@
         <option value="creative">In-Market Creative</option>
         <option value="company">Company Intel</option>
       </select>
+    </div>
+    <div>
+      <label>&nbsp;</label>
+      <button class="filter-btn share-toggle-btn" id="shareToggle-archive" onclick="toggleShareFilter('archive')" style="padding:9px 16px;">Not Shared Only</button>
     </div>
   </div>
   <div id="archive-result-count" style="font-size:12px;color:#888;margin-bottom:12px;"></div>
@@ -440,6 +463,45 @@
     <button class="copy-json-btn" id="copyJsonBtn" onclick="copyExportJson()">Copy JSON to clipboard</button>
     <div class="modal-actions" style="margin-top:16px;padding-top:0;border-top:none;">
       <button class="btn-secondary" onclick="closeModal('exportModalOverlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mark as Shared Modal -->
+<div class="modal-overlay" id="shareModalOverlay" onclick="handleOverlayClick(event,'shareModalOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Mark as Shared</h2>
+      <button class="modal-close" onclick="closeModal('shareModalOverlay')">&times;</button>
+    </div>
+    <div class="form-row">
+      <label>Item</label>
+      <div id="share-item-title" style="font-size:0.85rem;color:#333;font-weight:600;line-height:1.4;"></div>
+    </div>
+    <div class="form-row">
+      <label>Shared by <span class="req">*</span></label>
+      <select id="share-by">
+        <option value="">Select your name&hellip;</option>
+        <option>Josh Hornback</option>
+        <option>Tanashya Batra</option>
+        <option>Joanna Matarese</option>
+        <option>Joe Johnson</option>
+        <option>Katy Thorbahn</option>
+        <option>Kent Wilson</option>
+        <option>KJ Helton</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Shared with <span class="req">*</span></label>
+      <input type="text" id="share-with" placeholder="e.g. Wells Fargo Signify team, Jeff Hofmann">
+    </div>
+    <div class="form-row">
+      <label>Date <span class="req">*</span></label>
+      <input type="date" id="share-date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('shareModalOverlay')">Cancel</button>
+      <button class="btn-primary" onclick="submitShare()">Log Share</button>
     </div>
   </div>
 </div>
@@ -746,6 +808,89 @@ const TODAY = LAST_CHECKED;
 const COMPETISCAN_SEARCH = "https://www.competiscan.com/fullsearch.php?searchview=2";
 const STORAGE_KEY = "shiny_user_submissions_v2";
 
+// ===== SHARED-WITH-CLIENT LOG =====
+// Paste your deployed Google Apps Script Web App URL here once set up (see shared-log-setup-instructions.md)
+const SHARE_LOG_API_URL = "";
+const SHARE_NAME_KEY = "shiny_last_sharer_v1";
+var shareLog = {}; // itemKey -> [{sharedBy, sharedWith, sharedAt}, ...]
+var shareModalItem = null;
+var shareFilters = { cards:false, merchant:false, archive:false };
+
+// Deterministic key derived from date+title — no backfill needed on existing archive items
+function itemKey(item) {
+  var s = (item.date||'') + '::' + (item.title||'');
+  var hash = 0;
+  for (var i=0;i<s.length;i++){ hash = ((hash<<5)-hash) + s.charCodeAt(i); hash |= 0; }
+  return (item.date||'') + '-' + Math.abs(hash).toString(36);
+}
+function loadShareLog() {
+  if (!SHARE_LOG_API_URL) return;
+  fetch(SHARE_LOG_API_URL).then(function(r){ return r.json(); }).then(function(rows){
+    var log = {};
+    (rows||[]).forEach(function(row){
+      var k = row.itemId;
+      if (!k) return;
+      if (!log[k]) log[k] = [];
+      log[k].push({ sharedBy: row.sharedBy, sharedWith: row.sharedWith, sharedAt: row.sharedAt });
+    });
+    shareLog = log;
+    renderAll();
+    if (document.getElementById('panel-archive').classList.contains('active')) renderArchive();
+  }).catch(function(e){ console.warn('Could not load share log:', e); });
+}
+function openShareModal(key) {
+  var item = getAllItems().find(function(d){ return itemKey(d) === key; });
+  shareModalItem = { key: key, title: item ? item.title : '' };
+  document.getElementById('share-item-title').textContent = shareModalItem.title;
+  document.getElementById('share-by').value = localStorage.getItem(SHARE_NAME_KEY) || '';
+  document.getElementById('share-with').value = '';
+  document.getElementById('share-date').value = TODAY;
+  document.getElementById('shareModalOverlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('share-by').focus(); }, 50);
+}
+function submitShare() {
+  var by = document.getElementById('share-by').value;
+  var withWhom = document.getElementById('share-with').value.trim();
+  var when = document.getElementById('share-date').value;
+  if (!by || !withWhom || !when) {
+    alert('Please fill in who shared it, who it was shared with, and the date.');
+    return;
+  }
+  if (!SHARE_LOG_API_URL) {
+    alert('The share log isn\'t connected yet — see shared-log-setup-instructions.md to finish setup.');
+    return;
+  }
+  localStorage.setItem(SHARE_NAME_KEY, by);
+  var key = shareModalItem.key;
+  if (!shareLog[key]) shareLog[key] = [];
+  shareLog[key].push({ sharedBy: by, sharedWith: withWhom, sharedAt: when });
+  renderAll();
+  if (document.getElementById('panel-archive').classList.contains('active')) renderArchive();
+  closeModal('shareModalOverlay');
+  fetch(SHARE_LOG_API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ itemId: key, title: shareModalItem.title, sharedBy: by, sharedWith: withWhom, sharedAt: when })
+  }).catch(function(e){ console.warn('Could not save share event:', e); });
+}
+function toggleShareFilter(panel) {
+  shareFilters[panel] = !shareFilters[panel];
+  var btn = document.getElementById('shareToggle-' + panel);
+  if (btn) btn.classList.toggle('active', shareFilters[panel]);
+  if (panel === 'archive') renderArchive(); else renderPanel(panel);
+}
+function renderShareSection(item) {
+  var key = itemKey(item);
+  var shares = shareLog[key] || [];
+  var html = '<div class="share-row">';
+  shares.forEach(function(s){
+    html += '<div class="share-event"><span class="dot">&#9679;</span>' + escHtml(s.sharedBy) +
+      ' &rarr; ' + escHtml(s.sharedWith) + ' <span class="share-date">(' + fmtDate(s.sharedAt) + ')</span></div>';
+  });
+  html += '<button class="share-btn' + (shares.length?' has-shares':'') + '" onclick="openShareModal(\'' + key + '\')">' +
+    (shares.length ? '+ Log another share' : '&#128228; Mark as Shared') + '</button></div>';
+  return html;
+}
+
 // ===== DATE HELPERS =====
 function daysBetween(a, b) {
   return Math.round((new Date(b) - new Date(a)) / 86400000);
@@ -821,6 +966,7 @@ function renderPanel(panel) {
   var cutoffStr = cutoff.toISOString().slice(0,10);
   items = items.filter(function(d){ return d._userSubmitted || (d.date||'') >= cutoffStr; });
   if (f !== 'all') items = items.filter(function(d){ return d.type === f; });
+  if (shareFilters[panel]) items = items.filter(function(d){ return !(shareLog[itemKey(d)]||[]).length; });
   renderCards('grid-' + panel, items, true, panel);
 }
 
@@ -933,12 +1079,13 @@ function renderCards(gridId, items, showNew, vertical) {
     var delBtn = isSub ? '<button class="delete-card-btn" onclick="deleteSubmission(\'' + item.id + '\')" title="Remove">&times;</button>' : '';
     var why = renderWhySections(item, vertical);
     var csWidget = renderCompetiscanWidget(item) || '';
+    var shareHtml = item._userSubmitted ? '' : renderShareSection(item);
     return '<div class="intel-card type-' + item.type + (isSub?' user-submitted':'') + '">' + delBtn +
       '<div class="card-header"><div class="card-title">' + escHtml(item.title) + badge + '</div>' +
       '<span class="card-tag tag-' + item.type + '">' + typeLabel(item.type) + '</span></div>' +
       '<div class="card-summary">' + escHtml(item.summary) + '</div>' + why + csWidget +
       '<div class="card-footer">' + renderDates(item) +
-      '<div class="card-source">' + renderSourceLink(item) + '</div></div></div>';
+      '<div class="card-source">' + renderSourceLink(item) + '</div></div>' + shareHtml + '</div>';
   }).join('');
 }
 function escHtml(str) {
@@ -958,6 +1105,7 @@ function renderArchive() {
   if (to) items = items.filter(function(d){ return (d.publishedDate||d.date) <= to; });
   if (v !== 'all') items = items.filter(function(d){ return d.vertical === v || d.vertical === 'both'; });
   if (t !== 'all') items = items.filter(function(d){ return d.type === t; });
+  if (shareFilters.archive) items = items.filter(function(d){ return !(shareLog[itemKey(d)]||[]).length; });
   if (q) {
     items = items.filter(function(d) {
       return (d.title||'').toLowerCase().includes(q) ||
@@ -1065,6 +1213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('last-updated-display').textContent = metaParts.join(' · ');
   }
   renderAll();
+  loadShareLog();
 });
 </script>
 </body>
