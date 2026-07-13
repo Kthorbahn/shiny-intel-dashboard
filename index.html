@@ -446,9 +446,15 @@
 
 <script>
 // date = date surfaced/added; publishedDate = actual article publication date
-const LAST_UPDATED = "2026-07-09";
-const LAST_CHECKED = "2026-07-09";
+const LAST_UPDATED = "2026-07-10";
+const LAST_CHECKED = "2026-07-10";
 const RESEARCH_DATA = [
+  { date:"2026-07-10", publishedDate:"2026-06-25", vertical:"merchant", type:"trend",
+    title:"Agentic commerce goes live for real: Mastercard, Worldline, and Crédit Agricole complete France's first production AI-agent payment",
+    summary:"On June 25, 2026, Worldline, Crédit Agricole, and Mastercard completed France's first live, production agentic payment transaction — not a demo. A Crédit Agricole Client used an AI shopping agent to search for festival tickets by budget and location, then gave explicit final confirmation before Worldline processed the purchase over the Mastercard network, with Crédit Agricole handling authentication and authorization as the issuing bank throughout.",
+    whyItMatters:"This archive already flagged agentic commerce as a coming wave; this is the wave landing. It's the first time an AI agent completed an actual payment end-to-end in a live banking environment, with full traceability and issuer-level authentication built in — proof the 'machine-readable checkout' problem is solvable today, not a 2030 concern. For WF/Clover, the open question stops being hypothetical: can Clover's checkout stack support an agent-initiated purchase with the same authentication and traceability guardrails Crédit Agricole just shipped? Worth raising with WF now, while this is still a roadmap conversation and not yet a competitive gap Square or Toast has closed first.",
+    sourceName:"FinTech Futures / Worldline", sourceUrl:"https://www.fintechfutures.com/ai-in-fintech/worldline-mastercard-credit-agricole-complete-first-ai-agent-payment-france" },
+
   { date:"2026-07-09", publishedDate:"2026-07-08", vertical:"both", type:"competitor",
     title:"US Bank launches \"Enhanced Payments\" — bundles instant wires, same-day ACH, and instant payments into one small biz banking tool",
     summary:"On July 8, 2026, U.S. Bank launched Enhanced Payments, a small business money-movement tool available via mobile and online banking. It bundles fully digital international wires (no branch visit required), same-day ACH, and instant payments at lower per-transaction fees, plus new transaction limits and money-movement selection tools for all business online banking users. Chief product officer Shruti Patel tied the launch to PYMNTS/Mastercard research showing 57% of small businesses now source internationally.",
@@ -822,7 +828,7 @@ function isCompetiscanItem(item) {
 // Returns a Competiscan widget HTML string, or null if not a Competiscan item
 function renderCompetiscanWidget(item) {
   if (!isCompetiscanItem(item)) return null;
-  var co = extractCompetiscanCompany(item.sourceName) || '';
+  var co = extractCompetiscanCompany(item.sourceName);
   var productId = item.competiscanProductId || '';
   if (productId) {
     var htmlUrl = 'https://www.competiscan.com/processed-html.php?id=' + encodeURIComponent(productId);
