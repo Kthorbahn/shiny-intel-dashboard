@@ -2,7 +2,7 @@
 {
   "name": "Shiny Intel Dashboard",
   "schemaVersion": 1,
-  "description": "Daily competitive intelligence dashboard for Shiny's Wells Fargo Client teams. Tabs for Small Biz Credit Cards and Merchant Services show the latest research, plus an Archive tab to browse all past dates. Each item has a \"Why this matters\" take in Shiny's strategic voice. Refreshed daily via scheduled task; history accumulates in intel-archive.json."
+  "description": "Daily competitive intelligence dashboard for Shiny's Client teams. Tabs for Small Biz Credit Cards, Merchant Services (Wells Fargo), and TruStage show the latest research, plus an Archive tab to browse all past dates across Clients. Each item has a \"Why this matters\" take in Shiny's strategic voice. Refreshed daily via scheduled task; history accumulates in intel-archive.json."
 }
 </script>
 <html lang="en">
@@ -269,7 +269,7 @@
 <div id="auth-overlay" style="display:none;position:fixed;inset:0;background:#f7f8fa;z-index:9999;display:flex;align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);padding:40px 48px;max-width:380px;width:100%;text-align:center;">
     <div style="color:#00A99D;font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px;">Shiny Intel</div>
-    <div style="font-size:13px;color:#999;margin-bottom:28px;">Wells Fargo · Client Intelligence</div>
+    <div style="font-size:13px;color:#999;margin-bottom:28px;">Wells Fargo &amp; TruStage · Client Intelligence</div>
     <input id="auth-input" type="password" placeholder="Enter password" autocomplete="current-password"
       style="width:100%;padding:11px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px;"
       onkeydown="if(event.key==='Enter')checkAuth()">
@@ -306,7 +306,7 @@
 <header>
   <div>
     <h1>Shiny Intelligence Dashboard</h1>
-    <div class="meta">Wells Fargo &middot; Signify &amp; Merchant Services</div>
+    <div class="meta">Wells Fargo (Signify &amp; Merchant Services) &middot; TruStage</div>
     <div id="last-updated-display" style="font-size:0.75rem;color:#999;margin-top:3px;"></div>
   </div>
   <div class="header-right">
@@ -317,6 +317,7 @@
 <div class="tabs">
   <button class="tab-btn active" onclick="showPanel('cards',this)">Small Biz Credit Cards<span class="tab-count" id="count-cards" style="display:none"></span></button>
   <button class="tab-btn" onclick="showPanel('merchant',this)">Merchant Services<span class="tab-count" id="count-merchant" style="display:none"></span></button>
+  <button class="tab-btn" onclick="showPanel('trustage',this)">TruStage<span class="tab-count" id="count-trustage" style="display:none"></span></button>
   <button class="tab-btn" onclick="showPanel('archive',this)">Archive</button>
 </div>
 
@@ -332,7 +333,7 @@
       <button class="filter-btn" onclick="setFilter('cards','company',this)">Company Intel</button>
       <button class="filter-btn share-toggle-btn" id="shareToggle-cards" onclick="toggleShareFilter('cards')">Not Shared Only</button>
     </div>
-    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(3)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(4)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
   <div class="cards-grid" id="grid-cards"></div>
 </div>
@@ -349,9 +350,25 @@
       <button class="filter-btn" onclick="setFilter('merchant','company',this)">Company Intel</button>
       <button class="filter-btn share-toggle-btn" id="shareToggle-merchant" onclick="toggleShareFilter('merchant')">Not Shared Only</button>
     </div>
-    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(3)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(4)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
   <div class="cards-grid" id="grid-merchant"></div>
+</div>
+
+<div id="panel-trustage" class="panel">
+  <div id="submissions-banner-trustage"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+    <div class="filters" id="filters-trustage" style="margin-bottom:0;">
+      <button class="filter-btn active" onclick="setFilter('trustage','all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('trustage','client',this)">TruStage</button>
+      <button class="filter-btn" onclick="setFilter('trustage','competitor',this)">Competitor Moves</button>
+      <button class="filter-btn" onclick="setFilter('trustage','trend',this)">Industry Trends</button>
+      <button class="filter-btn" onclick="setFilter('trustage','company',this)">Company Intel</button>
+      <button class="filter-btn share-toggle-btn" id="shareToggle-trustage" onclick="toggleShareFilter('trustage')">Not Shared Only</button>
+    </div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(4)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+  </div>
+  <div class="cards-grid" id="grid-trustage"></div>
 </div>
 
 <div id="panel-archive" class="panel">
@@ -367,12 +384,13 @@
         <option value="all">All Verticals</option>
         <option value="cards">Small Biz Cards</option>
         <option value="merchant">Merchant Services</option>
+        <option value="trustage">TruStage</option>
       </select>
     </div>
     <div><label>Type</label>
       <select id="archiveType" onchange="renderArchive()">
         <option value="all">All Types</option>
-        <option value="client">Wells Fargo</option>
+        <option value="client">Client News</option>
         <option value="competitor">Competitor Moves</option>
         <option value="trend">Industry Trends</option>
         <option value="creative">In-Market Creative</option>
@@ -428,7 +446,8 @@
         <select id="sub-vertical">
           <option value="cards">Small Biz Credit Cards</option>
           <option value="merchant">Merchant Services</option>
-          <option value="both">Both</option>
+          <option value="both">Both (WF Cards + Merchant)</option>
+          <option value="trustage">TruStage</option>
         </select>
       </div>
       <div class="form-row" style="margin-bottom:0">
@@ -489,6 +508,7 @@
         <option>Katy Thorbahn</option>
         <option>Kent Wilson</option>
         <option>KJ Helton</option>
+        <option>Max Berger</option>
       </select>
     </div>
     <div class="form-row">
@@ -1104,7 +1124,7 @@ const SHARE_LOG_API_URL = "https://script.google.com/macros/s/AKfycbw-Atzo8WOxXG
 const SHARE_NAME_KEY = "shiny_last_sharer_v1";
 var shareLog = {}; // itemKey -> [{sharedBy, sharedWith, sharedAt}, ...]
 var shareModalItem = null;
-var shareFilters = { cards:false, merchant:false, archive:false };
+var shareFilters = { cards:false, merchant:false, trustage:false, archive:false };
 
 // Deterministic key derived from date+title — no backfill needed on existing archive items
 function itemKey(item) {
@@ -1220,7 +1240,7 @@ function getAllItems() {
 }
 
 // ===== PANEL STATE =====
-var panelFilters = { cards:'all', merchant:'all' };
+var panelFilters = { cards:'all', merchant:'all', trustage:'all' };
 
 function showPanel(id, btn) {
   document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
@@ -1236,20 +1256,24 @@ function setFilter(panel, type, btn) {
   renderPanel(panel);
 }
 function getVerticalItems(v) {
-  return getAllItems().filter(function(d){ return d.vertical === v || d.vertical === 'both'; });
+  // 'both' is a WF-only crossover marker (cards+merchant) — never leak it into TruStage
+  return getAllItems().filter(function(d){
+    if (v === 'trustage') return d.vertical === 'trustage';
+    return d.vertical === v || d.vertical === 'both';
+  });
 }
 function renderAll() {
-  renderPanel('cards'); renderPanel('merchant'); updateTabCounts(); renderSubmissionsBanners();
+  renderPanel('cards'); renderPanel('merchant'); renderPanel('trustage'); updateTabCounts(); renderSubmissionsBanners();
 }
 function updateTabCounts() {
-  ['cards','merchant'].forEach(function(v) {
+  ['cards','merchant','trustage'].forEach(function(v) {
     var n = getVerticalItems(v).filter(function(d){ return d._userSubmitted; }).length;
     var el = document.getElementById('count-' + v);
     if (el) { el.textContent = n || ''; el.style.display = n ? '' : 'none'; }
   });
 }
 function renderSubmissionsBanners() {
-  ['cards','merchant'].forEach(function(panel) {
+  ['cards','merchant','trustage'].forEach(function(panel) {
     var banner = document.getElementById('submissions-banner-' + panel);
     if (!banner) return;
     var n = getVerticalItems(panel).filter(function(d){ return d._userSubmitted; }).length;
@@ -1342,8 +1366,10 @@ function renderDates(item) {
 }
 
 // ===== CARDS =====
-function typeLabel(t) {
-  var m = {client:'Wells Fargo',competitor:'Competitor',trend:'Industry Trend',creative:'In-Market Creative',company:'Company Intel'};
+function typeLabel(item) {
+  var t = item.type;
+  if (t === 'client') return item.vertical === 'trustage' ? 'TruStage' : 'Wells Fargo';
+  var m = {competitor:'Competitor',trend:'Industry Trend',creative:'In-Market Creative',company:'Company Intel'};
   return m[t]||t;
 }
 // Some items run in both verticals but need a different strategic takeaway for each side
@@ -1384,7 +1410,7 @@ function renderCards(gridId, items, showNew, vertical) {
     var shareHtml = item._userSubmitted ? '' : renderShareSection(item);
     return '<div class="intel-card type-' + item.type + (isSub?' user-submitted':'') + '">' + delBtn +
       '<div class="card-header"><div class="card-title">' + escHtml(item.title) + badge + '</div>' +
-      '<span class="card-tag tag-' + item.type + '">' + typeLabel(item.type) + '</span></div>' +
+      '<span class="card-tag tag-' + item.type + '">' + typeLabel(item) + '</span></div>' +
       '<div class="card-summary">' + escHtml(item.summary) + '</div>' + why + csWidget +
       '<div class="card-footer">' + renderDates(item) +
       '<div class="card-source">' + renderSourceLink(item) + '</div></div>' + shareHtml + '</div>';
@@ -1405,7 +1431,10 @@ function renderArchive() {
   var items = getAllItems();
   if (from) items = items.filter(function(d){ return (d.publishedDate||d.date) >= from; });
   if (to) items = items.filter(function(d){ return (d.publishedDate||d.date) <= to; });
-  if (v !== 'all') items = items.filter(function(d){ return d.vertical === v || d.vertical === 'both'; });
+  if (v !== 'all') items = items.filter(function(d){
+    if (v === 'trustage') return d.vertical === 'trustage';
+    return d.vertical === v || d.vertical === 'both';
+  });
   if (t !== 'all') items = items.filter(function(d){ return d.type === t; });
   if (shareFilters.archive) items = items.filter(function(d){ return !(shareLog[itemKey(d)]||[]).length; });
   if (q) {
