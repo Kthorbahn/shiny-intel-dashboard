@@ -528,9 +528,54 @@
 
 <script>
 // date = date surfaced/added; publishedDate = actual article publication date
-const LAST_UPDATED = "2026-07-30";
-const LAST_CHECKED = "2026-07-30";
+const LAST_UPDATED = "2026-07-31";
+const LAST_CHECKED = "2026-07-31";
 const RESEARCH_DATA =[
+{
+    "date": "2026-07-31",
+    "publishedDate": "2026-04-14",
+    "vertical": "both",
+    "type": "competitor",
+    "title": "Amex quietly built the agentic-commerce rulebook months ago \u2014 ACE developer kit and Agent Purchase Protection already live",
+    "summary": "American Express launched its Agentic Commerce Experiences (ACE) developer kit on April 14, 2026 \u2014 a framework covering agent registration, account enablement, purchase intent, payment credentials, and cart context for AI agents transacting on a cardholder's behalf. It shipped alongside Amex Agent Purchase Protection, an industry-first commitment to back purchases made by a cardholder's registered AI agent, provided the agent transmits authenticated purchase intent to Amex. CEO Stephen Squeri has since framed the pitch publicly: \"the winners in this new paradigm will go well beyond basic payment functionality by offering differentiated value, service and security.\"",
+    "whyItMattersCards": "This landed months before this archive caught it, and it's exactly the kind of infrastructure move that's easy to miss until a competitor's cardholder base is already using it. Signify has no registered-agent framework and no purchase-protection product for AI-agent transactions \u2014 if a small business owner's AI assistant is doing more of the buying, Amex is the only issuer in this set that's told that agent it's covered. Worth asking WF now whether Signify needs an agent-purchase policy answer, even a simple one, before this becomes table stakes instead of a differentiator.",
+    "whyItMattersMerchant": "For Clover, this is the acceptance side of the same coin: Amex's ACE kit is building the rails for agent-initiated purchases to flow through merchants who integrate with it, and \"cart context\" is explicitly one of the five services in the kit \u2014 meaning Amex wants merchants passing structured cart data to agents, not just accepting a swipe. Combined with Square's live ChatGPT/Claude ordering integration already flagged in this archive, that's now two major players (one card network, one POS/payments company) building for agent-driven checkout while Clover has no public agentic-commerce roadmap. Worth raising with WF whether Clover's product team is tracking ACE specifically, since it's the card-network half of a gap this archive has already flagged on the merchant side.",
+    "sourceName": "American Express Newsroom",
+    "sourceUrl": "https://www.americanexpress.com/en-us/newsroom/articles/innovation/american-express-debuts-agentic-commerce-experiences--ace--devel.html"
+  },
+  {
+    "date": "2026-07-31",
+    "publishedDate": "2026-06-04",
+    "vertical": "cards",
+    "type": "competitor",
+    "title": "Ramp raises $750M at $44B valuation \u2014 corporate card fintech now bigger than most regional banks",
+    "summary": "Ramp closed a $750M round at a $44B post-money valuation in early June 2026, co-led by ICONIQ Capital, GIC, and Ontario Teachers' Pension Plan, with Goldman Sachs Growth Equity, Morgan Stanley Investment Management, and Founders Fund also participating. Ramp now serves more than 70,000 business Clients (up from 50,000 at the start of the year), reportedly hit $1.5B in annualized revenue in May, and says it has reached positive free cash flow.",
+    "whyItMatters": "A $44B valuation and positive free cash flow means Ramp isn't burning investor cash to buy growth anymore \u2014 it can now fund product expansion (it's already pushed well beyond cards into payments, procurement, and accounting) from a position of real strength. That matters for Signify because Ramp's pitch has never been about the card itself; it's about the AI-driven spend-management platform wrapped around it, exactly the kind of \"smart card\" positioning Signify's flat 2% rate has no answer for. Worth asking WF whether Signify's roadmap needs its own spend-intelligence layer before more small business owners default to Ramp as their financial operating system, not just their card issuer.",
+    "sourceName": "TechCrunch",
+    "sourceUrl": "https://techcrunch.com/2026/06/04/ramp-raises-750m-at-44b-valuation-as-investors-hunger-for-fintechs-with-an-ai-story/"
+  },
+  {
+    "date": "2026-07-31",
+    "publishedDate": "2026-06-17",
+    "vertical": "trustage",
+    "type": "competitor",
+    "title": "Chubb reportedly floats $42B AIG takeover \u2014 both deny, but the M&A appetite in insurance is real",
+    "summary": "Insurance Insider reported in mid-June 2026 that Chubb made an informal takeover approach to AIG worth roughly $42 billion, which would combine to form a roughly $150B insurance giant \u2014 potentially the largest deal in insurance history. Both companies pushed back on the specifics: AIG said it is \"not for sale,\" and Chubb denied making a formal offer. AIG shares climbed about 6% on the initial report before giving back gains as both sides downplayed it. AIG had already announced a CEO succession plan in June 2026, which some analysts read as a signal it intends to stay independent.",
+    "whyItMatters": "Even a denied rumor like this says something about where insurance capital is looking to consolidate \u2014 scale and reinsurance capacity in commercial and specialty lines, not the credit-union-distributed personal lines TruStage plays in. But it's a reminder that TruStage's competitive set could look very different in 18 months if consolidation among traditional carriers accelerates: fewer, bigger players with more marketing muscle chasing the same member's attention. Worth watching whether this M&A chatter cools or resumes, and whether it changes how aggressively a combined Chubb-AIG, or any resulting spinoff talent, would compete for the credit union channel specifically.",
+    "sourceName": "Investing.com / Insurance Insider",
+    "sourceUrl": "https://www.investing.com/news/analyst-ratings/chubb-stock-falls-after-denying-aig-takeover-approach-report-93CH-4402068"
+  },
+  {
+    "date": "2026-07-31",
+    "publishedDate": "2026-07-16",
+    "vertical": "trustage",
+    "type": "company",
+    "title": "Truist locks in Mike Lyons as CEO for Sept 1 \u2014 Q2 profit up 37% on Bill Rogers' last call",
+    "summary": "Truist Financial's Q2 2026 earnings, reported July 16-17, 2026, beat estimates with diluted EPS up 37% year-over-year to $1.23 and net income of $1.55B, marking outgoing CEO Bill Rogers' final earnings call. Incoming CEO Michael Lyons \u2014 who left Fiserv, Clover's parent company, after just 13 months, as flagged in this archive on June 15 \u2014 takes over September 1, with Rogers moving to Executive Chairman until his retirement next April. Truist executives described the transition as delivering \"certainty\" to the bank.",
+    "whyItMatters": "This confirms the timeline on a story already flagged here: the same Mike Lyons who left Fiserv mid-turnaround now has a firm start date running Truist, a name close enough to TruStage that member confusion is a real, ongoing risk (also flagged in this archive re: Truist's #1 digital banking ranking). A strong earnings beat right before the handoff means Lyons inherits real momentum, not a fixer-upper \u2014 so Truist is likely to be a louder, more confident brand in market by Q4, not a distracted one. Worth confirming with TruStage whether brand-disambiguation materials account for a newly energized Truist marketing presence, not just the name overlap itself.",
+    "sourceName": "Banking Dive",
+    "sourceUrl": "https://www.bankingdive.com/news/truist-ceo-rogers-lyons-appointment-certainty-earnings/825561/"
+  },
   {
     "date": "2026-07-30",
     "publishedDate": "2026-07-15",
