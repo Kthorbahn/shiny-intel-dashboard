@@ -528,10 +528,20 @@
 
 <script>
 // date = date surfaced/added; publishedDate = actual article publication date
-const LAST_UPDATED = "2026-08-03";
-const LAST_CHECKED = "2026-08-03";
+const LAST_UPDATED = "2026-08-04";
+const LAST_CHECKED = "2026-08-04";
 const RESEARCH_DATA =[
-
+{
+  "date": "2026-08-04",
+  "publishedDate": "2026-08-03",
+  "vertical": "trustage",
+  "type": "client",
+  "title": "TruStage sets a mid-August recovery target \u2014 but the lawsuit count is growing faster than the fix",
+  "summary": "TruStage said August 3, 2026 that it expects to restore basic billing and claims servicing during the first half of August, moving into a phased rebuild of its technology environment (refreshed laptops, new security controls, staged reconnection) rather than a straight restart, following the July 11 cyberattack it disclosed July 15. Forensic investigators still have not determined whether member data was compromised. The number of lawsuits over the incident is growing beyond the Bessemer System Federal Credit Union class action already flagged in this archive.",
+  "whyItMatters": "This is the first time TruStage has put an actual date on recovery instead of the open-ended \"days and weeks\" language from two weeks ago \u2014 that's a real communication asset credit union partners can be given now instead of another vague update. But \"lawsuits continue to grow\" while the outage stretches into a second month is the sharper signal: every week without a firm answer on data exposure hands plaintiffs' firms and anxious credit unions more reason to act before TruStage controls the narrative. Worth confirming with TruStage whether the mid-August date is already being pushed proactively to credit union partners, and whether there's a plan for what TruStage says publicly if the data-exposure question gets forced before investigators have an answer.",
+  "sourceName": "CU Times",
+  "sourceUrl": "https://www.cutimes.com/2026/08/03/trustage-targets-mid-august-recovery-as-cyberattack-lawsuits-continue-to-grow/"
+},
 {
   "date": "2026-08-03",
   "publishedDate": "2026-04-22",
@@ -1290,8 +1300,7 @@ const RESEARCH_DATA =[
   "whyItMatters": "For a restaurant owner or retailer running on thin margins, waiting 2\u20133 days for processing funds is a genuine pain. Same-day or instant settlement speaks directly to how small business owners think about cash flow \u2014 not as a financial concept, but as \"can I make payroll.\" If WF/Clover offers faster settlement than Square or Toast, that's a message worth making a centerpiece of their marketing. Does Shiny know how WF/Clover compares on settlement speed? That's a question worth asking on the next Client call.",
   "sourceName": "Payments Journal / Payments Dive",
   "sourceUrl": "https://www.paymentsjournal.com/the-3-key-trends-that-will-shape-merchant-payments-in-2026/"
-}
-];
+}];
 
 // TODAY is pinned to LAST_CHECKED (the pipeline's own "today"), not the real device clock —
 // this dashboard's data lives on a narrative timeline (dates into 2026), so using the real
