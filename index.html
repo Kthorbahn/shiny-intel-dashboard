@@ -2213,6 +2213,7 @@ function itemKey(item) {
   var s = (item.date||'') + '::' + (item.title||'');
   var hash = 0;
   for (var i=0;i<s.length;i++){ hash = ((hash<<5)-hash) + s.charCodeAt(i); hash |= 0; }
+  return (item.date||'') + '-' + Math.abs(hash).toString(36);
 }
 function loadShareLog() {
   // Apps Script doesn't send CORS headers, so fetch() can't read the response
