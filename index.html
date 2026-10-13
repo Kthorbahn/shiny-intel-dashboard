@@ -85,6 +85,8 @@
   .why-section { background: #f9fafb; border-radius: 6px; padding: 10px 13px; margin-bottom: 12px; }
   .why-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #00A99D; margin-bottom: 5px; }
   .why-text { font-size: 0.83rem; color: #333; line-height: 1.55; }
+  .why-takeaway { font-size: 0.88rem; font-weight: 700; color: #1a1a2e; line-height: 1.45; margin-bottom: 6px; }
+  .slack-origin { display:inline-block; font-size:0.7rem; color:#6b7280; background:#f3f4f6; border-radius:4px; padding:2px 6px; margin-top:6px; }
 
   /* Card footer — dates are now prominent */
   .card-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
@@ -306,7 +308,7 @@
 <header>
   <div>
     <h1>Shiny Intelligence Dashboard</h1>
-    <div class="meta">Wells Fargo (Signify &amp; Merchant Services) &middot; TruStage</div>
+    <div class="meta">Wells Fargo (Signify &amp; Merchant Services) &middot; TruStage &middot; Financial Services</div>
     <div id="last-updated-display" style="font-size:0.75rem;color:#999;margin-top:3px;"></div>
   </div>
   <div class="header-right">
@@ -318,6 +320,7 @@
   <button class="tab-btn active" onclick="showPanel('cards',this)">Small Biz Credit Cards<span class="tab-count" id="count-cards" style="display:none"></span></button>
   <button class="tab-btn" onclick="showPanel('merchant',this)">Merchant Services<span class="tab-count" id="count-merchant" style="display:none"></span></button>
   <button class="tab-btn" onclick="showPanel('trustage',this)">TruStage<span class="tab-count" id="count-trustage" style="display:none"></span></button>
+  <button class="tab-btn" onclick="showPanel('finserv',this)">Financial Services<span class="tab-count" id="count-finserv" style="display:none"></span></button>
   <button class="tab-btn" onclick="showPanel('archive',this)">Archive</button>
 </div>
 
@@ -333,7 +336,7 @@
       <button class="filter-btn" onclick="setFilter('cards','company',this)">Company Intel</button>
       <button class="filter-btn share-toggle-btn" id="shareToggle-cards" onclick="toggleShareFilter('cards')">Not Shared Only</button>
     </div>
-    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(4)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:last-child'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
   <div class="cards-grid" id="grid-cards"></div>
 </div>
@@ -350,7 +353,7 @@
       <button class="filter-btn" onclick="setFilter('merchant','company',this)">Company Intel</button>
       <button class="filter-btn share-toggle-btn" id="shareToggle-merchant" onclick="toggleShareFilter('merchant')">Not Shared Only</button>
     </div>
-    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(4)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:last-child'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
   <div class="cards-grid" id="grid-merchant"></div>
 </div>
@@ -366,9 +369,25 @@
       <button class="filter-btn" onclick="setFilter('trustage','company',this)">Company Intel</button>
       <button class="filter-btn share-toggle-btn" id="shareToggle-trustage" onclick="toggleShareFilter('trustage')">Not Shared Only</button>
     </div>
-    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:nth-child(4)'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:last-child'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
   </div>
   <div class="cards-grid" id="grid-trustage"></div>
+</div>
+
+<div id="panel-finserv" class="panel">
+  <div id="submissions-banner-finserv"></div>
+  <div style="font-size:0.8rem;color:#555;margin-bottom:10px;">Industry-wide financial services news from the team's #financial-services Slack channel. Items specific to a Client or tracked competitor appear in that Client's tab instead.</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+    <div class="filters" id="filters-finserv" style="margin-bottom:0;">
+      <button class="filter-btn active" onclick="setFilter('finserv','all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('finserv','competitor',this)">Competitor Moves</button>
+      <button class="filter-btn" onclick="setFilter('finserv','trend',this)">Industry Trends</button>
+      <button class="filter-btn" onclick="setFilter('finserv','company',this)">Company Intel</button>
+      <button class="filter-btn share-toggle-btn" id="shareToggle-finserv" onclick="toggleShareFilter('finserv')">Not Shared Only</button>
+    </div>
+    <div style="font-size:0.78rem;color:#999;">Showing last 7 days &middot; <button onclick="showPanel('archive',document.querySelector('.tab-btn:last-child'))" style="background:none;border:none;color:#00A99D;font-size:0.78rem;cursor:pointer;padding:0;">Browse all in Archive &rarr;</button></div>
+  </div>
+  <div class="cards-grid" id="grid-finserv"></div>
 </div>
 
 <div id="panel-archive" class="panel">
@@ -385,6 +404,7 @@
         <option value="cards">Small Biz Cards</option>
         <option value="merchant">Merchant Services</option>
         <option value="trustage">TruStage</option>
+        <option value="finserv">Financial Services</option>
       </select>
     </div>
     <div><label>Type</label>
@@ -532,14 +552,45 @@ const LAST_CHECKED = "2026-10-13";
 const RESEARCH_DATA = [
   {
     "date": "2026-10-13",
+    "publishedDate": "2026-09-02",
+    "vertical": "finserv",
+    "type": "trend",
+    "title": "Keynova: big banks are rebuilding small business digital banking around payments and invoicing; only Chase, Citi and U.S. Bank offer instant payments",
+    "summary": "The Financial Brand reports on Keynova Group's Small Business Digital Banker Scorecard of 11 major banks. Analyst Susan Foulds says the big banks are \"finally paying attention\" and no longer offering a consumer platform with a small business label on it, adding \"cash management light\" features. Only Chase, Citi and U.S. Bank offer instant payments in their small business digital services; 73% offer ACH payments and digital invoices; nearly 40% let firms accept incoming card payments, but only one in three integrate inbound card payments into the small business interface. Bank of America is the only bank studied that makes it easy to reach a banker, including booking an appointment digitally.",
+    "keyTakeaway": "The small business banking interface is becoming the battleground where cards and merchant acceptance either show up together or get lost to fintech tools.",
+    "whyItMatters": "Inbound card acceptance tied into the small business digital experience is exactly where Clover and Signify could meet, and the study says only a third of big banks have done it. Fintechs such as Mercury, Rho and Brex (named in the article) are winning by bundling accounting, invoicing and payments, which pushes the bank into the background. Shiny should check where Wells Fargo stands on instant payments, invoicing and integrated card acceptance before any \"easy\" or \"all-in-one\" small business messaging goes out.",
+    "sourceName": "The Financial Brand",
+    "sourceUrl": "https://thefinancialbrand.com/news/banking-technology/think-your-banks-digital-services-for-small-business-are-competitive-think-again-199354",
+    "slackTs": "1791478802.210709",
+    "slackPermalink": "https://shinyagency.slack.com/archives/C0AAJ0TFP7G/p1791478802210709",
+    "submittedBy": "KJ / khelton@shiny.agency"
+  },
+  {
+    "date": "2026-10-13",
+    "publishedDate": "2026-09-04",
+    "vertical": "finserv",
+    "type": "competitor",
+    "title": "Revolut wins conditional OCC approval for a U.S. national bank, targeting a first-half 2027 launch with checking, loans and credit cards",
+    "summary": "Crowdfund Insider reports that on Sept. 3, 2026 the OCC granted Revolut preliminary conditional approval to form Revolut Bank US, N.A. It still needs FDIC deposit insurance, Federal Reserve approval and final OCC authorization before opening, and says it remains on schedule for a first-half 2027 launch. The Stamford, Conn. bank would start with about $95 million in capital and roughly 160 employees; products under discussion include checking, installment loans, credit cards, FX and multicurrency features. Revolut serves more than 80 million customers worldwide and aims for 100 million by mid-2027.",
+    "keyTakeaway": "Another scaled fintech is buying its way into direct U.S. deposits and cards, adding pressure on banks for everyday digital customers in 2027.",
+    "whyItMatters": "The article covers consumer products, not small business, so this is a watch item rather than an immediate threat to Signify or Clover. Revolut does run a business account in other markets (context, not from the article), so a U.S. charter makes a later small business push plausible. It also joins a run of fintech charter moves (context: archived 9/11 Block trust-bank charter), and that is the pattern Clients should be tracking.",
+    "sourceName": "Crowdfund Insider",
+    "sourceUrl": "https://www.crowdfundinsider.com/2026/09/305896-revolut-obtains-conditional-occ-approval-for-us-national-bank-charter/",
+    "slackTs": "1791565200.588459",
+    "slackPermalink": "https://shinyagency.slack.com/archives/C0AAJ0TFP7G/p1791565200588459",
+    "submittedBy": "KJ / khelton@shiny.agency"
+  },
+  {
+    "date": "2026-10-13",
     "publishedDate": "2026-10-09",
     "vertical": "trustage",
     "type": "client",
     "title": "TruStage can't reliably calculate Q3 royalties, so credit unions get their Q2 amounts instead — and the customer hardship fund is now paying out",
     "summary": "Credit Union Daily reports that TruStage will use second-quarter royalty payment amounts to make third-quarter payments to credit unions in its Consumer Insurance Solutions business, because the systems outage has prevented it from reliably calculating amounts owed. Any underpayment will be added to the next royalty payment, and TruStage may deduct an overpayment from future payments; it says the approach does not modify existing contracts. In the same update, CEO Terrance Williams wrote that \"October will be a very active month,\" listing restoration of commercial policy issuance for credit unions, the Payments Protection Calculator Service later in October, and new GAP, mechanical repair and payment protection business near month-end, while life insurance work will run several more months. He said the TruStage Foundation has partnered with an unnamed nonprofit that is now making gifts to customers in extreme hardship tied to the attack, cited S&P's reaffirmed A+ rating, and said TruStage does not expect a material effect on its long-term financial position.",
-    "whyItMatters": "Royalties are the line on the credit union P&L where TruStage shows up as revenue, not as a vendor — and for Q3 that line is now an estimate with a true-up clawback attached. That moves the conversation from member experience to partner economics: CU finance teams will want to know when real numbers arrive and how big a correction to expect. Context: the archived 9/18 card covered Williams announcing a grant fund in development; it's now paying, which is the first concrete proof point TruStage can put in front of members, and should be told through credit unions rather than buried in a CEO letter. Shiny should push for a partner-facing royalty FAQ and a member-facing hardship story before the next local-TV claim case lands.",
+    "whyItMatters": "Royalties are the line on the credit union P&L where TruStage shows up as revenue, not as a vendor, and CU finance teams will want to know when real numbers arrive and how big a correction to expect. Context: the archived 9/18 card covered Williams announcing a grant fund in development; it's now paying, the first concrete proof point TruStage can show members, and it should be told through credit unions rather than buried in a CEO letter. Shiny should push for a partner-facing royalty FAQ and a member-facing hardship story before the next local-TV claim case lands.",
     "sourceName": "Credit Union Daily",
-    "sourceUrl": "https://thecudaily.com/trustage-to-use-q2-royalty-payment-amounts-to-make-q3-payments-as-it-works-to-recover-from-cyberattack/"
+    "sourceUrl": "https://thecudaily.com/trustage-to-use-q2-royalty-payment-amounts-to-make-q3-payments-as-it-works-to-recover-from-cyberattack/",
+    "keyTakeaway": "Q3 royalties to credit unions are now an estimate with a clawback, so the recovery is a partner-economics problem, not just a member-experience one."
   },
   {
     "date": "2026-10-12",
@@ -2931,7 +2982,7 @@ const SHARE_LOG_API_URL = "https://script.google.com/macros/s/AKfycbw-Atzo8WOxXG
 const SHARE_NAME_KEY = "shiny_last_sharer_v1";
 var shareLog = {}; // itemKey -> [{sharedBy, sharedWith, sharedAt}, ...]
 var shareModalItem = null;
-var shareFilters = { cards:false, merchant:false, trustage:false, archive:false };
+var shareFilters = { cards:false, merchant:false, trustage:false, finserv:false, archive:false };
 
 // Deterministic key derived from date+title — no backfill needed on existing archive items
 function itemKey(item) {
@@ -3047,7 +3098,7 @@ function getAllItems() {
 }
 
 // ===== PANEL STATE =====
-var panelFilters = { cards:'all', merchant:'all', trustage:'all' };
+var panelFilters = { cards:'all', merchant:'all', trustage:'all', finserv:'all' };
 
 function showPanel(id, btn) {
   document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
@@ -3065,22 +3116,22 @@ function setFilter(panel, type, btn) {
 function getVerticalItems(v) {
   // 'both' is a WF-only crossover marker (cards+merchant) — never leak it into TruStage
   return getAllItems().filter(function(d){
-    if (v === 'trustage') return d.vertical === 'trustage';
+    if (v === 'trustage' || v === 'finserv') return d.vertical === v;
     return d.vertical === v || d.vertical === 'both';
   });
 }
 function renderAll() {
-  renderPanel('cards'); renderPanel('merchant'); renderPanel('trustage'); updateTabCounts(); renderSubmissionsBanners();
+  renderPanel('cards'); renderPanel('merchant'); renderPanel('trustage'); renderPanel('finserv'); updateTabCounts(); renderSubmissionsBanners();
 }
 function updateTabCounts() {
-  ['cards','merchant','trustage'].forEach(function(v) {
+  ['cards','merchant','trustage','finserv'].forEach(function(v) {
     var n = getVerticalItems(v).filter(function(d){ return d._userSubmitted; }).length;
     var el = document.getElementById('count-' + v);
     if (el) { el.textContent = n || ''; el.style.display = n ? '' : 'none'; }
   });
 }
 function renderSubmissionsBanners() {
-  ['cards','merchant','trustage'].forEach(function(panel) {
+  ['cards','merchant','trustage','finserv'].forEach(function(panel) {
     var banner = document.getElementById('submissions-banner-' + panel);
     if (!banner) return;
     var n = getVerticalItems(panel).filter(function(d){ return d._userSubmitted; }).length;
@@ -3183,22 +3234,26 @@ function typeLabel(item) {
 // (whyItMattersCards / whyItMattersMerchant) rather than one takeaway repeated twice.
 // `vertical` here is the lens we're rendering through: 'cards', 'merchant', or null/'all'
 // (Archive tab with no vertical filter) — in which case we show both takes, labeled.
+// keyTakeaway (one sentence) leads the section in bold; whyItMatters holds the supporting reasoning.
+// Older items have no takeaway field and render as before.
+function whyBlock(label, takeaway, text) {
+  if (!takeaway && !text) return '';
+  return '<div class="why-section"><div class="why-label">' + label + '</div>' +
+    (takeaway ? '<div class="why-takeaway">' + escHtml(takeaway) + '</div>' : '') +
+    (text ? '<div class="why-text">' + escHtml(text) + '</div>' : '') + '</div>';
+}
 function renderWhySections(item, vertical) {
   if (!item.whyItMattersCards && !item.whyItMattersMerchant) {
-    return item.whyItMatters ? '<div class="why-section"><div class="why-label">Why this matters</div><div class="why-text">' + escHtml(item.whyItMatters) + '</div></div>' : '';
+    return whyBlock('Why this matters', item.keyTakeaway, item.whyItMatters);
   }
   if (vertical === 'cards') {
-    var tc = item.whyItMattersCards || item.whyItMattersMerchant || item.whyItMatters;
-    return tc ? '<div class="why-section"><div class="why-label">Why this matters — Small Biz Cards</div><div class="why-text">' + escHtml(tc) + '</div></div>' : '';
+    return whyBlock('Why this matters — Small Biz Cards', item.keyTakeawayCards || item.keyTakeaway, item.whyItMattersCards || item.whyItMattersMerchant || item.whyItMatters);
   }
   if (vertical === 'merchant') {
-    var tm = item.whyItMattersMerchant || item.whyItMattersCards || item.whyItMatters;
-    return tm ? '<div class="why-section"><div class="why-label">Why this matters — Merchant Services</div><div class="why-text">' + escHtml(tm) + '</div></div>' : '';
+    return whyBlock('Why this matters — Merchant Services', item.keyTakeawayMerchant || item.keyTakeaway, item.whyItMattersMerchant || item.whyItMattersCards || item.whyItMatters);
   }
-  var both = '';
-  if (item.whyItMattersCards) both += '<div class="why-section"><div class="why-label">Why this matters — Small Biz Cards</div><div class="why-text">' + escHtml(item.whyItMattersCards) + '</div></div>';
-  if (item.whyItMattersMerchant) both += '<div class="why-section"><div class="why-label">Why this matters — Merchant Services</div><div class="why-text">' + escHtml(item.whyItMattersMerchant) + '</div></div>';
-  return both;
+  return whyBlock('Why this matters — Small Biz Cards', item.keyTakeawayCards, item.whyItMattersCards) +
+         whyBlock('Why this matters — Merchant Services', item.keyTakeawayMerchant, item.whyItMattersMerchant);
 }
 function renderCards(gridId, items, showNew, vertical) {
   var grid = document.getElementById(gridId);
@@ -3220,7 +3275,7 @@ function renderCards(gridId, items, showNew, vertical) {
       '<span class="card-tag tag-' + item.type + '">' + typeLabel(item) + '</span></div>' +
       '<div class="card-summary">' + escHtml(item.summary) + '</div>' + why + csWidget +
       '<div class="card-footer">' + renderDates(item) +
-      '<div class="card-source">' + renderSourceLink(item) + '</div></div>' + shareHtml + '</div>';
+      '<div class="card-source">' + renderSourceLink(item) + (item.slackPermalink ? '<br><a class="slack-origin" href="' + escHtml(item.slackPermalink) + '" target="_blank">via #financial-services' + (item.submittedBy ? ' &middot; ' + escHtml(item.submittedBy.split(' /')[0]) : '') + '</a>' : '') + '</div></div>' + shareHtml + '</div>';
   }).join('');
 }
 function escHtml(str) {
@@ -3239,7 +3294,7 @@ function renderArchive() {
   if (from) items = items.filter(function(d){ return (d.publishedDate||d.date) >= from; });
   if (to) items = items.filter(function(d){ return (d.publishedDate||d.date) <= to; });
   if (v !== 'all') items = items.filter(function(d){
-    if (v === 'trustage') return d.vertical === 'trustage';
+    if (v === 'trustage' || v === 'finserv') return d.vertical === v;
     return d.vertical === v || d.vertical === 'both';
   });
   if (t !== 'all') items = items.filter(function(d){ return d.type === t; });
@@ -3249,6 +3304,7 @@ function renderArchive() {
       return (d.title||'').toLowerCase().includes(q) ||
              (d.summary||'').toLowerCase().includes(q) ||
              (d.whyItMatters||'').toLowerCase().includes(q) ||
+             (d.keyTakeaway||'').toLowerCase().includes(q) ||
              (d.whyItMattersCards||'').toLowerCase().includes(q) ||
              (d.whyItMattersMerchant||'').toLowerCase().includes(q) ||
              (d.sourceName||'').toLowerCase().includes(q);
