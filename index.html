@@ -85,6 +85,8 @@
   .why-section { background: #f9fafb; border-radius: 6px; padding: 10px 13px; margin-bottom: 12px; }
   .why-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #00A99D; margin-bottom: 5px; }
   .why-text { font-size: 0.83rem; color: #333; line-height: 1.55; }
+  .why-bullets { margin: 0; padding-left: 18px; font-size: 0.83rem; color: #333; line-height: 1.5; }
+  .why-bullets li { margin-bottom: 4px; }
   .why-takeaway { font-size: 0.88rem; font-weight: 700; color: #1a1a2e; line-height: 1.45; margin-bottom: 6px; }
   .slack-origin { display:inline-block; font-size:0.7rem; color:#6b7280; background:#f3f4f6; border-radius:4px; padding:2px 6px; margin-top:6px; }
 
@@ -558,7 +560,7 @@ const RESEARCH_DATA = [
     "title": "Keynova: big banks are rebuilding small business digital banking around payments and invoicing; only Chase, Citi and U.S. Bank offer instant payments",
     "summary": "The Financial Brand reports on Keynova Group's Small Business Digital Banker Scorecard of 11 major banks. Analyst Susan Foulds says the big banks are \"finally paying attention\" and no longer offering a consumer platform with a small business label on it, adding \"cash management light\" features. Only Chase, Citi and U.S. Bank offer instant payments in their small business digital services; 73% offer ACH payments and digital invoices; nearly 40% let firms accept incoming card payments, but only one in three integrate inbound card payments into the small business interface. Bank of America is the only bank studied that makes it easy to reach a banker, including booking an appointment digitally.",
     "keyTakeaway": "The small business banking interface is becoming the battleground where cards and merchant acceptance either show up together or get lost to fintech tools.",
-    "whyItMatters": "Inbound card acceptance tied into the small business digital experience is exactly where Clover and Signify could meet, and the study says only a third of big banks have done it. Fintechs such as Mercury, Rho and Brex (named in the article) are winning by bundling accounting, invoicing and payments, which pushes the bank into the background. Shiny should check where Wells Fargo stands on instant payments, invoicing and integrated card acceptance before any \"easy\" or \"all-in-one\" small business messaging goes out.",
+    "whyItMatters": "- Inbound card acceptance built into the small business digital experience is where Clover and Signify could meet, and only a third of big banks have done it.\n- Fintechs named in the article (Mercury, Rho, Brex) win by bundling accounting, invoicing and payments, which pushes the bank into the background.\n- Before any \"easy\" or \"all-in-one\" small business messaging, Shiny should check where Wells Fargo stands on instant payments, invoicing and integrated card acceptance.",
     "sourceName": "The Financial Brand",
     "sourceUrl": "https://thefinancialbrand.com/news/banking-technology/think-your-banks-digital-services-for-small-business-are-competitive-think-again-199354",
     "slackTs": "1791478802.210709",
@@ -573,7 +575,7 @@ const RESEARCH_DATA = [
     "title": "Revolut wins conditional OCC approval for a U.S. national bank, targeting a first-half 2027 launch with checking, loans and credit cards",
     "summary": "Crowdfund Insider reports that on Sept. 3, 2026 the OCC granted Revolut preliminary conditional approval to form Revolut Bank US, N.A. It still needs FDIC deposit insurance, Federal Reserve approval and final OCC authorization before opening, and says it remains on schedule for a first-half 2027 launch. The Stamford, Conn. bank would start with about $95 million in capital and roughly 160 employees; products under discussion include checking, installment loans, credit cards, FX and multicurrency features. Revolut serves more than 80 million customers worldwide and aims for 100 million by mid-2027.",
     "keyTakeaway": "Another scaled fintech is buying its way into direct U.S. deposits and cards, adding pressure on banks for everyday digital customers in 2027.",
-    "whyItMatters": "The article covers consumer products, not small business, so this is a watch item rather than an immediate threat to Signify or Clover. Revolut does run a business account in other markets (context, not from the article), so a U.S. charter makes a later small business push plausible. It also joins a run of fintech charter moves (context: archived 9/11 Block trust-bank charter), and that is the pattern Clients should be tracking.",
+    "whyItMatters": "- The article covers consumer products, not small business, so this is a watch item rather than a near-term threat to Signify or Clover.\n- Context, not from the article: Revolut runs a business account in other markets, so a later U.S. small business push is plausible once the charter is final.\n- It joins a run of fintech charter moves (context: archived 9/11 Block trust-bank charter); that pattern is what Clients should be tracking.",
     "sourceName": "Crowdfund Insider",
     "sourceUrl": "https://www.crowdfundinsider.com/2026/09/305896-revolut-obtains-conditional-occ-approval-for-us-national-bank-charter/",
     "slackTs": "1791565200.588459",
@@ -587,7 +589,7 @@ const RESEARCH_DATA = [
     "type": "client",
     "title": "TruStage can't reliably calculate Q3 royalties, so credit unions get their Q2 amounts instead — and the customer hardship fund is now paying out",
     "summary": "Credit Union Daily reports that TruStage will use second-quarter royalty payment amounts to make third-quarter payments to credit unions in its Consumer Insurance Solutions business, because the systems outage has prevented it from reliably calculating amounts owed. Any underpayment will be added to the next royalty payment, and TruStage may deduct an overpayment from future payments; it says the approach does not modify existing contracts. In the same update, CEO Terrance Williams wrote that \"October will be a very active month,\" listing restoration of commercial policy issuance for credit unions, the Payments Protection Calculator Service later in October, and new GAP, mechanical repair and payment protection business near month-end, while life insurance work will run several more months. He said the TruStage Foundation has partnered with an unnamed nonprofit that is now making gifts to customers in extreme hardship tied to the attack, cited S&P's reaffirmed A+ rating, and said TruStage does not expect a material effect on its long-term financial position.",
-    "whyItMatters": "Royalties are the line on the credit union P&L where TruStage shows up as revenue, not as a vendor, and CU finance teams will want to know when real numbers arrive and how big a correction to expect. Context: the archived 9/18 card covered Williams announcing a grant fund in development; it's now paying, the first concrete proof point TruStage can show members, and it should be told through credit unions rather than buried in a CEO letter. Shiny should push for a partner-facing royalty FAQ and a member-facing hardship story before the next local-TV claim case lands.",
+    "whyItMatters": "- Royalties are where TruStage shows up as revenue on the credit union P&L, not as a vendor. CU finance teams will want to know when real numbers arrive and how big the correction could be.\n- The hardship fund announced 9/18 (context: archived card) is now paying, the first concrete proof point TruStage can show members.\n- Shiny should push for a partner-facing royalty FAQ and a member hardship story told through credit unions, before the next local-TV claim case lands.",
     "sourceName": "Credit Union Daily",
     "sourceUrl": "https://thecudaily.com/trustage-to-use-q2-royalty-payment-amounts-to-make-q3-payments-as-it-works-to-recover-from-cyberattack/",
     "keyTakeaway": "Q3 royalties to credit unions are now an estimate with a clawback, so the recovery is a partner-economics problem, not just a member-experience one."
@@ -3240,7 +3242,16 @@ function whyBlock(label, takeaway, text) {
   if (!takeaway && !text) return '';
   return '<div class="why-section"><div class="why-label">' + label + '</div>' +
     (takeaway ? '<div class="why-takeaway">' + escHtml(takeaway) + '</div>' : '') +
-    (text ? '<div class="why-text">' + escHtml(text) + '</div>' : '') + '</div>';
+    (text ? renderWhyText(text) : '') + '</div>';
+}
+// whyItMatters may be bullets: lines starting with "- " separated by \n. Older items are plain paragraphs.
+function renderWhyText(text) {
+  var lines = String(text).split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  var bullets = lines.filter(function(l){ return /^[-•]\s+/.test(l); });
+  if (bullets.length && bullets.length === lines.length) {
+    return '<ul class="why-bullets">' + bullets.map(function(l){ return '<li>' + escHtml(l.replace(/^[-•]\s+/, '')) + '</li>'; }).join('') + '</ul>';
+  }
+  return '<div class="why-text">' + escHtml(text) + '</div>';
 }
 function renderWhySections(item, vertical) {
   if (!item.whyItMattersCards && !item.whyItMattersMerchant) {
