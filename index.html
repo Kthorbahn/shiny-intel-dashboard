@@ -549,9 +549,65 @@
 
 <script>
 // date = date surfaced/added; publishedDate = actual article publication date
-const LAST_UPDATED = "2026-10-14";
-const LAST_CHECKED = "2026-10-14";
+const LAST_UPDATED = "2026-10-15";
+const LAST_CHECKED = "2026-10-15";
 const RESEARCH_DATA = [
+  {
+    "date": "2026-10-15",
+    "publishedDate": "2026-10-14",
+    "vertical": "both",
+    "type": "client",
+    "title": "OCC's final debanking report names Wells Fargo among nine banks whose policies could restrict access over politics, religion or lawful industries",
+    "summary": "On Oct. 14 the OCC released a 47-page report on the nine largest banks it supervises (JPMorgan Chase, Bank of America, Citibank, Wells Fargo, U.S. Bank, Capital One, PNC, TD and BMO), concluding that \"between 2020 and September 2025, all nine banks had such policies\" that could limit access to financial services based on political or religious beliefs or lawful business activities. It faulted broad reputation-risk policies that \"lacked clear standards and objective, risk-based criteria\" and industry restrictions covering oil and gas, coal, firearms, detention facilities, tobacco and e-cigarettes, and digital assets. One cited example: a payment processor owned by a bank closed the account of a merchant selling MAGA merchandise. No fines or penalties were announced; the OCC said it is considering further actions. Wells Fargo declined to comment.",
+    "keyTakeawayCards": "Regulators now frame debanking as a business-access problem, so any Signify message about who the bank serves carries political and regulatory risk for Wells Fargo.",
+    "whyItMattersCards": "- The OCC's restricted-industry list (oil and gas, firearms, tobacco, digital assets) is made up of business customers, which pulls small business onboarding into the spotlight.\n- All nine banks were named, including Capital One, BofA, U.S. Bank, PNC and TD, so this doesn't single Wells Fargo out against Signify's direct rivals.\n- Senate Banking Chair Tim Scott called the report \"damning\" and told Fox to expect more from the committee, so the story will likely resurface.\n- Shiny should ask the WF team whether any Signify eligibility or industry-exclusion language in Q4 creative needs a second look.",
+    "keyTakeawayMerchant": "The report's lead example is a bank-owned payment processor closing a merchant account, which puts merchant terminations squarely in regulators' sights.",
+    "whyItMattersMerchant": "- The coverage doesn't name the bank behind the processor example, and nothing we read ties it to Wells Fargo or Clover.\n- Merchant acquiring is where industry restrictions bite: firearms, tobacco and e-cigarette, and digital-asset sellers all need card acceptance.\n- Context: the FTC is already probing Block over frozen Square accounts (archived 10/12), so account freezes and closures are a live theme for banks and fintechs alike.\n- Shiny should ask whether Clover onboarding and account-closure communications are clear and defensible before any \"every business\" claims run.",
+    "sourceName": "Fox Business; The American Bazaar (OCC report, Oct. 14)",
+    "sourceUrl": "https://www.foxbusiness.com/politics/us-regulator-accuses-nations-largest-banks-debanking-customers-over-political-views",
+    "slackTs": "1792010440.685539",
+    "slackPermalink": "https://shinyagency.slack.com/archives/C0AAJ0TFP7G/p1792010440685539",
+    "submittedBy": "Jerry / jreardon@shiny.agency"
+  },
+  {
+    "date": "2026-10-15",
+    "publishedDate": "2026-10-14",
+    "vertical": "cards",
+    "type": "company",
+    "title": "BofA Q3 2026: card spend up 8% to $266B, card loans up 5%, 4.1M small business checking accounts, and a $1.2B regulatory settlement charge",
+    "summary": "Bank of America reported Q3 2026 net income of $6.9 billion ($0.91 per share) on revenue up 3% to $30.0 billion; results included a $1.2 billion regulatory settlement charge, excluding which adjusted EPS was $1.08. In Consumer Banking, combined credit/debit card spend rose 8% to $266 billion, average credit card loans rose 5% to $106 billion, the bank counted 4.1 million small business checking accounts, and it called itself the #1 small business lender for 21 consecutive quarters. BofA Rewards had 17.6 million enrolled clients, with about 4 million new enrollments in Q3. Global Banking loans grew 8%, \"with growth across corporate, commercial and business banking.\"",
+    "keyTakeaway": "BofA's growth engine is relationship enrollment at scale, which keeps \"up to 2.62% with the relationship\" as the benchmark Signify's flat 2% gets compared against.",
+    "whyItMatters": "- About 4 million new BofA Rewards enrollments in one quarter (consumer and wealth clients, per the release footnote) show relationship tiers are BofA's main lever.\n- Context: Preferred Rewards for Business can lift BofA's 1.5% business card to as much as 2.62% (archived 6/29 creative), so a bigger relationship base widens that pitch.\n- The 4.1 million small business checking accounts are the base BofA cross-sells cards into, and its #1 small business lender claim is now 21 quarters old.\n- Shiny should pressure-test Signify's simplicity story (\"no tiers, no hoops\") against BofA's relationship-boost story in the next creative round.",
+    "sourceName": "Bank of America Q3 2026 earnings release (SEC 8-K Ex. 99.1)",
+    "sourceUrl": "https://www.sec.gov/Archives/edgar/data/0000070858/000007085826000481/bac09302026ex991.htm"
+  },
+  {
+    "date": "2026-10-15",
+    "publishedDate": "2026-10-14",
+    "vertical": "merchant",
+    "type": "client",
+    "title": "Fiserv passes 5 million Clover devices shipped worldwide, one year after hitting 4 million",
+    "summary": "Fiserv announced on Oct. 14 that it has surpassed five million Clover devices shipped worldwide. Its timeline shows 1 million as of 2018, 2 million as of 2021, 3 million as of 2023, 4 million as of 2025 and 5 million as of 2026. CEO Takis Georgakopoulos said \"every Clover device connects a business to the broader capabilities of Fiserv.\" The release gives no merchant, location or revenue figures and doesn't break out shipments by country or sales channel.",
+    "keyTakeaway": "Fiserv is selling Clover on scale, which gives Wells Fargo a usable \"millions of devices\" proof point but not a growth or merchant-count story.",
+    "whyItMatters": "- Shipments are cumulative devices, not active merchants, so the 5 million figure shouldn't appear as a merchant count in Wells Fargo creative.\n- The release's own timeline shows one year from 4 million to 5 million, versus two years for each of the two prior million-device steps.\n- Context: Toast and Square are discounting or giving away hardware (archived 10/6), so device milestones say less about share than they used to.\n- Shiny should ask the Clover team whether WF can cite the 5 million figure and pair it with bank-specific proof like banker support and funding speed.",
+    "sourceName": "Fiserv press release (GlobeNewswire)",
+    "sourceUrl": "https://investors.fiserv.com/news-releases/news-release-details/fiserv-surpasses-5-million-clover-devices-shipped-worldwide"
+  },
+  {
+    "date": "2026-10-15",
+    "publishedDate": "2026-09-03",
+    "vertical": "finserv",
+    "type": "trend",
+    "title": "Mercury survey: 75% of U.S. founders say costs ran higher than expected, and a quarter are holding extra cash or getting paid more slowly",
+    "summary": "Mercury's May 2026 survey of 1,500 U.S. adults who started a company in the past six years found 75% said costs came in higher than expected (up from 66% last year), and none said much lower; 51% said inflation hurt their business, up from 36%. Founders responded by passing on or absorbing costs (27%), holding more cash than usual (26%), switching suppliers (25%) or postponing investments (24%); of those who passed costs along, 68% did so with 5% to 10% increases. Respondents reported customers pushing back on price (31%), downsizing orders (26%) and taking longer to pay (25%), and Mercury's own data shows companies incorporated in the past six years holding 27% more cash in 2026 than in 2024. Still, 84% reported improved confidence year over year.",
+    "keyTakeaway": "Newer small businesses are hoarding cash and waiting longer to get paid, so cash-flow timing is a sharper message than rewards rates for Wells Fargo's business Clients.",
+    "whyItMatters": "- Slower customer payments plus bigger cash buffers point to working capital, not spend rewards, as the pain owners feel most.\n- For Signify, payment-timing flexibility and float may land harder than another point of cash back; for Clover, funding speed and invoicing tools speak to the same worry.\n- The survey comes from Mercury, a fintech rival for small business banking, and skews to founders of newer companies, so treat it as directional.\n- Shiny should test a cash-flow-first message line alongside the rewards message in the next Signify and Clover creative rounds.",
+    "sourceName": "Stacker / KEYT (Mercury Startup Economics survey)",
+    "sourceUrl": "https://keyt.com/stacker-small-business/2026/09/03/everything-costs-more-but-founders-are-building-anyway/",
+    "slackTs": "1791997215.293079",
+    "slackPermalink": "https://shinyagency.slack.com/archives/C0AAJ0TFP7G/p1791997215293079",
+    "submittedBy": "KJ / khelton@shiny.agency"
+  },
   {
     "date": "2026-10-14",
     "publishedDate": "2026-10-13",
