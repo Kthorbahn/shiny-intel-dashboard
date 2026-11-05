@@ -549,9 +549,47 @@
 
 <script>
 // date = date surfaced/added; publishedDate = actual article publication date
-const LAST_UPDATED = "2026-11-04";
-const LAST_CHECKED = "2026-11-04";
+const LAST_UPDATED = "2026-11-05";
+const LAST_CHECKED = "2026-11-05";
 const RESEARCH_DATA = [
+  {
+    "date": "2026-11-05",
+    "publishedDate": "2026-11-02",
+    "vertical": "both",
+    "type": "client",
+    "title": "Wells Fargo's new online access terms, effective Nov. 24, make customers responsible for their AI agents' activity unless they can prove they revoked access",
+    "summary": "American Banker reports that an updated Wells Fargo online access agreement taking effect Nov. 24 says customers must revoke any AI agent's authorization, \"retain evidence of such revocation and must provide such evidence to us, at our request,\" and remain responsible for the agent's activities until they notify the bank, \"to the extent permitted by law or regulation.\" A Wells Fargo spokesman said the bank asks customers to keep that record because it \"may not otherwise have visibility\" into when an agent's authority was revoked. Tech Times, quoting the agreement, says agent instructions are \"deemed to have been initiated and authorized directly by you\" and that use of an AI agent is \"AT YOUR OWN RISK.\" Tech Times also reports that JPMorgan Chase blocked external agents in October and that Citi does not let third-party agents log in or transact, while Wells Fargo is a named design partner on Meta and Sierra's Personal Agent Protocol for scoped agent access.",
+    "keyTakeawayCards": "Wells Fargo is letting AI agents in but putting the risk on the customer, the opposite of Amex's protection promise, so Signify needs a clear agent-safety story before rivals frame it.",
+    "whyItMattersCards": "- Context: Amex already markets Agent Purchase Protection (archived 7/31 and 9/2), so \"who covers a bad agent purchase\" is now a card-competitive question.\n- Tech Times frames the change as Wells Fargo shifting liability to customers, effective three days before Black Friday.\n- Neither article says whether the terms cover business online banking or Signify card accounts, which is the first thing to confirm.\n- Shiny should ask the Signify team what the card-side rule is for agent purchases and whether a protection or controls message is coming.",
+    "keyTakeawayMerchant": "Clover merchants will see agent-initiated orders and payments grow, and Wells Fargo's own stance makes 'who's liable for an agent transaction' a question merchants will ask their bank.",
+    "whyItMattersMerchant": "- If the terms extend to business online banking (the articles don't say), owners linking AI bookkeeping or payment tools would carry the same risk.\n- Context: Toast is co-writing an agentic ordering standard and Amex convened a merchant agentic-commerce council (both archived), so Clover's agent story is already behind.\n- Being a Personal Agent Protocol design partner gives Wells Fargo a credible \"scoped, safer agents\" message it isn't telling yet.\n- Shiny should ask Merchant Services whether the terms apply to business accounts and if a merchant-facing agent-controls message is planned.",
+    "sourceName": "American Banker; Tech Times",
+    "sourceUrl": "https://www.americanbanker.com/news/wells-fargo-wants-customers-to-prove-theyve-revoked-ai-agents"
+  },
+  {
+    "date": "2026-11-05",
+    "publishedDate": "2026-10-29",
+    "vertical": "merchant",
+    "type": "competitor",
+    "title": "FTC and eight states sue Toast over hidden fees, unwanted add-ons, \"$0\" hardware claims, unmet 24/7 support promises and hard cancellations",
+    "summary": "The FTC and eight states sued Toast on Oct. 29 in federal court in Northern California, alleging it enrolled restaurants in add-ons such as timekeeping and payroll without consent, obscured fees behind its \"$0 per month\" Pay-as-you-Go plan, failed to deliver promised \"24/7/365\" support, and made cancellation a multi-step process with early termination fees of $150 per remaining month (one customer was charged $5,318.87). The complaint also alleges Toast added a $0.99 fee to online orders over $10 inside the \"Taxes and Fees\" line, with the money going to Toast, not the restaurant. Insurance Journal reports restaurants pay an average of $900 a month depending on terminals and add-ons. Toast says it will \"vigorously defend\" itself, arguing that \"no court has held that ROSCA applies to negotiated business-to-business agreements.\"",
+    "keyTakeaway": "The government is now saying in court what Clover has been trying to say in ads: Toast's 'free' hardware and bundled software come with fees and lock-in restaurants didn't expect.",
+    "whyItMatters": "- The specific allegations (hidden add-ons, $150-a-month ETFs, unreachable support) are exactly the pain points a switching campaign would target.\n- Context: Toast just reported ~8,500 net new locations in Q3 (archived 11/4), so the suit lands while its growth engine is still running.\n- Context: Wells Fargo's Clover Flex page lists no early termination fees, no long-term processing contracts and 24/7 live support, the direct contrast to the alleged practices.\n- Shiny should propose a transparent-pricing, easy-exit restaurant message for Clover, without making claims about the litigation itself.",
+    "sourceName": "Insurance Journal; PMQ Pizza",
+    "sourceUrl": "https://www.insurancejournal.com/news/national/2026/11/03/890849.htm"
+  },
+  {
+    "date": "2026-11-05",
+    "publishedDate": "2026-11-03",
+    "vertical": "merchant",
+    "type": "company",
+    "title": "Block Q3 2026: Square GPV up 14% to $76.4B, its fastest growth since early 2023, as Dorsey pitches AI agents as sellers' de facto staff",
+    "summary": "Block reported Q3 2026 gross profit of $3.24B, up 22%, and adjusted EPS of $1.13, and raised full-year guidance to $4.15 adjusted EPS and $12.626B gross profit. Square gross profit rose 14% to $1.16B and Square gross payment volume grew 14% to $76.4B, its strongest growth since Q1 2023, with U.S. GPV up 10.4% and international up 26%. On the earnings call, CEO Jack Dorsey said AI agents can handle the \"vendor side\" of merchant tasks such as product ordering and inventory, said \"You would assume that smaller sellers aren't up on this technology, but they are,\" and Block expects initial monetization of its AI tools in Q4. Separately, Block said it would pay $764 million under an October agreement with the Justice Department to settle Bank Secrecy Act claims.",
+    "keyTakeaway": "Square's merchant volume is reaccelerating while Block sells AI agents as replacements for sellers' outside vendors, raising the bar for what Clover has to offer small merchants.",
+    "whyItMatters": "- U.S. GPV still grew 10.4%, so Square's reacceleration isn't only an international story.\n- Dorsey's pitch is that small sellers want agents doing ordering and inventory, which competes on the software bundle, not just processing rates.\n- Context: Toast is also selling marketing and labor agents (archived 11/4), so both rivals now lead with AI that does work for the owner.\n- Shiny should ask Wells Fargo Merchant Services what Clover's small-seller AI story is heading into Q1 planning.",
+    "sourceName": "American Banker; Yahoo Finance (InvestorsHub)",
+    "sourceUrl": "https://www.americanbanker.com/payments/news/blocks-dorsey-aims-ai-at-rival-vendors-banks"
+  },
   {
     "date": "2026-11-04",
     "publishedDate": "2026-11-03",
